@@ -11,7 +11,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Floyo & ComfyUI Video Workflows | 無料・OSモデル動画制作ポータル</title>
-    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成と最新知見のポータルサイト">
+    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・JSONワークフローダウンロードと最新知見のポータルサイト">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -327,6 +327,33 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             font-family: 'JetBrains Mono', monospace;
         }
 
+        .card-action-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .btn-action {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--accent-glow);
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-primary);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+        }
+
         .card-footer {
             display: flex;
             justify-content: space-between;
@@ -372,7 +399,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             background: #0f172a;
             border: 1px solid var(--border-hover);
             border-radius: var(--radius-lg);
-            max-width: 700px;
+            max-width: 800px;
             width: 100%;
             max-height: 85vh;
             overflow-y: auto;
@@ -427,6 +454,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             padding: 0.25rem 0;
         }
 
+        .json-preview {
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: #a5f3fc;
+            max-height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 0.5rem;
+        }
+
         footer {
             border-top: 1px solid var(--border-color);
             padding: 2.5rem 2rem;
@@ -451,13 +492,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 <div class="logo-icon">F</div>
                 <div class="logo-text">Floyo & ComfyUI Video Hub</div>
             </div>
-            <a href="https://github.com" target="_blank" class="btn-link">GitHub Repository ↗</a>
+            <a href="https://github.com/t-hino66/floyo-comfy-video-portal" target="_blank" class="btn-link">GitHub Repository ↗</a>
         </div>
     </header>
 
     <div class="hero">
         <h1>Floyo / ComfyUI 動画制作ワークフロー</h1>
-        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心とした動画ワークフロー、ノード構成、Redditリアルタイム最新ノウハウのポータル</p>
+        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心とした動画ワークフロー・Floyo Canvas JSON の生成・ワンクリックダウンロード機能付きポータル</p>
         <div class="stats-bar">
             <div class="stat-item">データベース更新: <span class="stat-value" id="last-updated">2026-07-28</span></div>
             <div class="stat-item">収録アイテム数: <span class="stat-value" id="total-items">0</span></div>
@@ -498,6 +539,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
             <div id="modal-details-container"></div>
 
+            <div class="modal-section-title">Floyo Canvas (.json) ワークフロー構造</div>
+            <div class="card-action-bar" style="margin-bottom: 0.5rem;">
+                <button class="btn-action" id="modal-copy-json-btn">📋 JSONをコピー</button>
+                <button class="btn-action" id="modal-download-json-btn">💾 Floyo (.json) ダウンロード</button>
+            </div>
+            <pre class="json-preview" id="modal-json-preview"></pre>
+
             <div style="margin-top: 1.5rem; text-align: right;">
                 <a id="modal-url-btn" href="#" target="_blank" class="btn-link" style="font-size: 1rem;">ソースリンクを開く ↗</a>
             </div>
@@ -506,7 +554,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     <footer>
         <p>Built with Python & Pure Web Tech | Optimized for Floyo UI & ComfyUI Workflows</p>
-        <p style="margin-top: 0.5rem; font-size: 0.8rem;">※ Partner Nodes (Kling, Seedance等) はFloyoクレジットを消費する場合があります。オープンソースモデルを基準とした制作を推奨します。</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">※ Downloaded .json files can be directly dragged & dropped into Floyo UI Canvas.</p>
     </footer>
 
     <script>
@@ -527,7 +575,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             const modalTags = document.getElementById('modal-tags');
             const modalSummary = document.getElementById('modal-summary');
             const modalDetailsContainer = document.getElementById('modal-details-container');
+            const modalJsonPreview = document.getElementById('modal-json-preview');
+            const modalCopyJsonBtn = document.getElementById('modal-copy-json-btn');
+            const modalDownloadJsonBtn = document.getElementById('modal-download-json-btn');
             const modalUrlBtn = document.getElementById('modal-url-btn');
+
+            let currentModalItem = null;
 
             let allItems = [];
             if (DB_DATA) {
@@ -545,7 +598,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 cardGrid.innerHTML = '';
 
                 const filtered = allItems.filter(item => {
-                    // Filter check
                     let passFilter = true;
                     if (currentFilter === 'free') passFilter = item.is_free_os === true;
                     else if (currentFilter === 'paid') passFilter = item.is_free_os === false;
@@ -553,7 +605,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     else if (currentFilter === 'consistency') passFilter = item.category.includes('一貫性') || (item.tags && item.tags.includes('Character Consistency'));
                     else if (currentFilter === 'reddit') passFilter = item.id.startsWith('reddit');
 
-                    // Search check
                     let passSearch = true;
                     if (searchQuery) {
                         const q = searchQuery.toLowerCase();
@@ -592,21 +643,61 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                             <h3 class="card-title">${item.title}</h3>
                             <p class="card-summary">${item.summary}</p>
                             <div class="model-tags">${tagsHtml}</div>
+                            <div class="card-action-bar">
+                                <button class="btn-action download-quick-btn">💾 Canvas JSON</button>
+                                <button class="btn-action copy-quick-btn">📋 コピー</button>
+                            </div>
                         </div>
-                        <div class="card-footer">
+                        <div class="card-footer" style="margin-top: 1rem;">
                             <span>${item.updated || ''}</span>
-                            <button class="btn-link view-details-btn" style="background:none; border:none; cursor:pointer;">詳細を見る →</button>
+                            <button class="btn-link view-details-btn" style="background:none; border:none; cursor:pointer;">詳細ノード構成 →</button>
                         </div>
                     `;
 
-                    const btn = card.querySelector('.view-details-btn');
-                    btn.addEventListener('click', () => openModal(item));
+                    const btnDetails = card.querySelector('.view-details-btn');
+                    btnDetails.addEventListener('click', () => openModal(item));
+
+                    const btnDownload = card.querySelector('.download-quick-btn');
+                    btnDownload.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        downloadWorkflowJson(item);
+                    });
+
+                    const btnCopy = card.querySelector('.copy-quick-btn');
+                    btnCopy.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        copyWorkflowJson(item, btnCopy);
+                    });
 
                     cardGrid.appendChild(card);
                 });
             }
 
+            function copyWorkflowJson(item, btnElem) {
+                const jsonStr = JSON.stringify(item.workflow_json || {}, null, 2);
+                navigator.clipboard.writeText(jsonStr).then(() => {
+                    const origText = btnElem.textContent;
+                    btnElem.textContent = '✅ コピー完了!';
+                    setTimeout(() => { btnElem.textContent = origText; }, 2000);
+                });
+            }
+
+            function downloadWorkflowJson(item) {
+                const jsonStr = JSON.stringify(item.workflow_json || {}, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const safeTitle = (item.title || 'floyo_workflow').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                a.download = `${safeTitle}.canvas.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
             function openModal(item) {
+                currentModalItem = item;
                 modalCategory.textContent = item.category;
                 modalTitle.textContent = item.title;
                 modalSummary.textContent = item.summary;
@@ -636,8 +727,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     modalDetailsContainer.innerHTML = html;
                 }
 
+                const jsonStr = JSON.stringify(item.workflow_json || {}, null, 2);
+                modalJsonPreview.textContent = jsonStr;
+
                 modalOverlay.style.display = 'flex';
             }
+
+            modalCopyJsonBtn.addEventListener('click', () => {
+                if (currentModalItem) copyWorkflowJson(currentModalItem, modalCopyJsonBtn);
+            });
+
+            modalDownloadJsonBtn.addEventListener('click', () => {
+                if (currentModalItem) downloadWorkflowJson(currentModalItem);
+            });
 
             modalClose.addEventListener('click', () => {
                 modalOverlay.style.display = 'none';
@@ -668,7 +770,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 """
 
 def build_site():
-    print("Building static index.html from database...", flush=True)
+    print("Building static index.html from database with Canvas JSON Workflow features...", flush=True)
     if not os.path.exists(DATABASE_FILE):
         print(f"Error: {DATABASE_FILE} not found. Run extract_floyo_comfy_knowhow.py first.")
         return

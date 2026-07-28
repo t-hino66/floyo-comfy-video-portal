@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Floyo & ComfyUI Video Workflows | 無料・OSモデル動画制作ポータル</title>
-    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成と最新知見のポータルサイト">
+    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・JSONワークフローダウンロードと最新知見のポータルサイト">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -320,6 +320,33 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
+        .card-action-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .btn-action {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--accent-glow);
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-primary);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+        }
+
         .card-footer {
             display: flex;
             justify-content: space-between;
@@ -365,7 +392,7 @@
             background: #0f172a;
             border: 1px solid var(--border-hover);
             border-radius: var(--radius-lg);
-            max-width: 700px;
+            max-width: 800px;
             width: 100%;
             max-height: 85vh;
             overflow-y: auto;
@@ -420,6 +447,20 @@
             padding: 0.25rem 0;
         }
 
+        .json-preview {
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: #a5f3fc;
+            max-height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 0.5rem;
+        }
+
         footer {
             border-top: 1px solid var(--border-color);
             padding: 2.5rem 2rem;
@@ -444,13 +485,13 @@
                 <div class="logo-icon">F</div>
                 <div class="logo-text">Floyo & ComfyUI Video Hub</div>
             </div>
-            <a href="https://github.com" target="_blank" class="btn-link">GitHub Repository ↗</a>
+            <a href="https://github.com/t-hino66/floyo-comfy-video-portal" target="_blank" class="btn-link">GitHub Repository ↗</a>
         </div>
     </header>
 
     <div class="hero">
         <h1>Floyo / ComfyUI 動画制作ワークフロー</h1>
-        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心とした動画ワークフロー、ノード構成、Redditリアルタイム最新ノウハウのポータル</p>
+        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心とした動画ワークフロー・Floyo Canvas JSON の生成・ワンクリックダウンロード機能付きポータル</p>
         <div class="stats-bar">
             <div class="stat-item">データベース更新: <span class="stat-value" id="last-updated">2026-07-28</span></div>
             <div class="stat-item">収録アイテム数: <span class="stat-value" id="total-items">0</span></div>
@@ -491,6 +532,13 @@
 
             <div id="modal-details-container"></div>
 
+            <div class="modal-section-title">Floyo Canvas (.json) ワークフロー構造</div>
+            <div class="card-action-bar" style="margin-bottom: 0.5rem;">
+                <button class="btn-action" id="modal-copy-json-btn">📋 JSONをコピー</button>
+                <button class="btn-action" id="modal-download-json-btn">💾 Floyo (.json) ダウンロード</button>
+            </div>
+            <pre class="json-preview" id="modal-json-preview"></pre>
+
             <div style="margin-top: 1.5rem; text-align: right;">
                 <a id="modal-url-btn" href="#" target="_blank" class="btn-link" style="font-size: 1rem;">ソースリンクを開く ↗</a>
             </div>
@@ -499,13 +547,13 @@
 
     <footer>
         <p>Built with Python & Pure Web Tech | Optimized for Floyo UI & ComfyUI Workflows</p>
-        <p style="margin-top: 0.5rem; font-size: 0.8rem;">※ Partner Nodes (Kling, Seedance等) はFloyoクレジットを消費する場合があります。オープンソースモデルを基準とした制作を推奨します。</p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">※ Downloaded .json files can be directly dragged & dropped into Floyo UI Canvas.</p>
     </footer>
 
     <script>
         // Database injected directly from python build step
         const DB_DATA = {
-  "updated_at": "2026-07-28 13:20:46",
+  "updated_at": "2026-07-28 13:44:49",
   "total_count": 4,
   "curated_knowhow": [
     {
@@ -532,6 +580,7 @@
       "details": {
         "recommended_nodes": [
           "Load Image",
+          "CLIPTextEncode",
           "LTXVideoSampler",
           "VAEDecode",
           "VHS_VideoCombine"
@@ -541,6 +590,233 @@
         "key_tips": [
           "プロンプトは動きの動詞 (e.g. camera pans right, hair floating in the wind) に特化させる",
           "Floyo UIのCanvas JSONとしてロード可能で、Partner Nodeクレジットを消費しません"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 1,
+            "type": "LoadImage",
+            "pos": [
+              100,
+              150
+            ],
+            "size": [
+              315,
+              314
+            ],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "outputs": [
+              {
+                "name": "IMAGE",
+                "type": "IMAGE",
+                "links": [
+                  1
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "LoadImage"
+            },
+            "widgets_values": [
+              "input_character_scene.png",
+              "image"
+            ]
+          },
+          {
+            "id": 2,
+            "type": "CLIPTextEncode",
+            "pos": [
+              450,
+              150
+            ],
+            "size": [
+              400,
+              200
+            ],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "outputs": [
+              {
+                "name": "CONDITIONING",
+                "type": "CONDITIONING",
+                "links": [
+                  2
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "CLIPTextEncode"
+            },
+            "widgets_values": [
+              "masterpiece, highly detailed, 1girl, floating hair, wind blowing, smooth motion, high quality video, cinematic lighting"
+            ]
+          },
+          {
+            "id": 3,
+            "type": "LTXVideoSampler",
+            "pos": [
+              900,
+              150
+            ],
+            "size": [
+              350,
+              300
+            ],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+              {
+                "name": "image",
+                "type": "IMAGE",
+                "link": 1
+              },
+              {
+                "name": "positive",
+                "type": "CONDITIONING",
+                "link": 2
+              }
+            ],
+            "outputs": [
+              {
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  3
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "LTXVideoSampler"
+            },
+            "widgets_values": [
+              42,
+              "randomize",
+              25,
+              3.0,
+              "ltx-video-2.3.safetensors",
+              97,
+              24
+            ]
+          },
+          {
+            "id": 4,
+            "type": "VAEDecode",
+            "pos": [
+              1300,
+              150
+            ],
+            "size": [
+              210,
+              100
+            ],
+            "flags": {},
+            "order": 3,
+            "mode": 0,
+            "inputs": [
+              {
+                "name": "samples",
+                "type": "LATENT",
+                "link": 3
+              }
+            ],
+            "outputs": [
+              {
+                "name": "IMAGE",
+                "type": "IMAGE",
+                "links": [
+                  4
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "VAEDecode"
+            }
+          },
+          {
+            "id": 5,
+            "type": "VHS_VideoCombine",
+            "pos": [
+              1550,
+              150
+            ],
+            "size": [
+              300,
+              250
+            ],
+            "flags": {},
+            "order": 4,
+            "mode": 0,
+            "inputs": [
+              {
+                "name": "images",
+                "type": "IMAGE",
+                "link": 4
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "VHS_VideoCombine"
+            },
+            "widgets_values": [
+              24,
+              0,
+              "ltx_video_output",
+              "video/h264-mp4",
+              false,
+              true
+            ]
+          }
+        ],
+        "links": [
+          [
+            1,
+            1,
+            0,
+            3,
+            0,
+            "IMAGE"
+          ],
+          [
+            2,
+            2,
+            0,
+            3,
+            1,
+            "CONDITIONING"
+          ],
+          [
+            3,
+            3,
+            0,
+            4,
+            0,
+            "LATENT"
+          ],
+          [
+            4,
+            4,
+            0,
+            5,
+            0,
+            "IMAGE"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "LTX 2.3 Open-Source I2V Pipeline (Free)",
+            "bounding": [
+              50,
+              80,
+              1850,
+              450
+            ],
+            "color": "#10b981"
+          }
         ]
       }
     },
@@ -570,13 +846,145 @@
         "recommended_nodes": [
           "WanVideoTextEncode",
           "WanVideoSampler",
-          "HighResolutionVAEDecode"
+          "VHS_VideoCombine"
         ],
         "fps": 16,
         "frame_count": 81,
         "key_tips": [
           "Wan 2.1 14B / 1.3B モデルの使い分けによりグラフィックメモリ負荷を最適化",
           "AnimateDiffと組み合わせたハイブリッドアニメモーション生成が可能"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 10,
+            "type": "WanVideoTextEncode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              420,
+              220
+            ],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "outputs": [
+              {
+                "name": "CONDITIONING",
+                "type": "CONDITIONING",
+                "links": [
+                  10
+                ]
+              }
+            ],
+            "widgets_values": [
+              "anime scene, camera pans left slowly, detailed background, cherry blossoms falling, high dynamic range"
+            ]
+          },
+          {
+            "id": 11,
+            "type": "WanVideoSampler",
+            "pos": [
+              560,
+              100
+            ],
+            "size": [
+              360,
+              320
+            ],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "inputs": [
+              {
+                "name": "positive",
+                "type": "CONDITIONING",
+                "link": 10
+              }
+            ],
+            "outputs": [
+              {
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  11
+                ]
+              }
+            ],
+            "widgets_values": [
+              123456789,
+              "fixed",
+              30,
+              6.0,
+              "wan_2.1_14b.safetensors",
+              81,
+              16
+            ]
+          },
+          {
+            "id": 12,
+            "type": "VHS_VideoCombine",
+            "pos": [
+              960,
+              100
+            ],
+            "size": [
+              300,
+              250
+            ],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+              {
+                "name": "images",
+                "type": "IMAGE",
+                "link": 11
+              }
+            ],
+            "widgets_values": [
+              16,
+              0,
+              "wan_video_result",
+              "video/h264-mp4",
+              false,
+              true
+            ]
+          }
+        ],
+        "links": [
+          [
+            10,
+            10,
+            0,
+            11,
+            0,
+            "CONDITIONING"
+          ],
+          [
+            11,
+            11,
+            0,
+            12,
+            0,
+            "IMAGE"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Wan 2.1 High Quality Open T2V Block",
+            "bounding": [
+              50,
+              40,
+              1250,
+              420
+            ],
+            "color": "#6366f1"
+          }
         ]
       }
     },
@@ -606,13 +1014,133 @@
         "recommended_nodes": [
           "Character Profile Subgraph",
           "IPAdapterApply",
-          "Per-Cut I2V Block"
+          "LTXVideoSampler"
         ],
         "fps": 24,
         "frame_count": 48,
         "key_tips": [
           "最初に静止画でキャラシートを生成し、その画像ブロックを各カットのI2Vブロックに入力",
           "フリーの軽量アニメモデル (NetaYume, Anima) をベースモデルとして統一"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 20,
+            "type": "LoadImage",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              300,
+              300
+            ],
+            "widgets_values": [
+              "character_reference_sheet.png",
+              "image"
+            ],
+            "outputs": [
+              {
+                "name": "IMAGE",
+                "type": "IMAGE",
+                "links": [
+                  20
+                ]
+              }
+            ]
+          },
+          {
+            "id": 21,
+            "type": "IPAdapterApply",
+            "pos": [
+              450,
+              100
+            ],
+            "size": [
+              320,
+              240
+            ],
+            "inputs": [
+              {
+                "name": "image",
+                "type": "IMAGE",
+                "link": 20
+              }
+            ],
+            "outputs": [
+              {
+                "name": "MODEL",
+                "type": "MODEL",
+                "links": [
+                  21
+                ]
+              }
+            ],
+            "widgets_values": [
+              0.85,
+              "STYLE_AND_STRUCTURE"
+            ]
+          },
+          {
+            "id": 22,
+            "type": "LTXVideoSampler",
+            "pos": [
+              820,
+              100
+            ],
+            "size": [
+              350,
+              300
+            ],
+            "inputs": [
+              {
+                "name": "model",
+                "type": "MODEL",
+                "link": 21
+              }
+            ],
+            "outputs": [
+              {
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  22
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            20,
+            20,
+            0,
+            21,
+            0,
+            "IMAGE"
+          ],
+          [
+            21,
+            21,
+            0,
+            22,
+            0,
+            "MODEL"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Character Consistency & Cut Video Subgraph",
+            "bounding": [
+              50,
+              40,
+              1150,
+              400
+            ],
+            "color": "#06b6d4"
+          }
         ]
       }
     },
@@ -648,6 +1176,233 @@
           "ワークフロー内の `class_type` が `_floyo` で終わるかチェック",
           "無料運用を目指す場合は LTX 2.3 や Wan 2.1 への置き換えを実施"
         ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 1,
+            "type": "LoadImage",
+            "pos": [
+              100,
+              150
+            ],
+            "size": [
+              315,
+              314
+            ],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "outputs": [
+              {
+                "name": "IMAGE",
+                "type": "IMAGE",
+                "links": [
+                  1
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "LoadImage"
+            },
+            "widgets_values": [
+              "input_character_scene.png",
+              "image"
+            ]
+          },
+          {
+            "id": 2,
+            "type": "CLIPTextEncode",
+            "pos": [
+              450,
+              150
+            ],
+            "size": [
+              400,
+              200
+            ],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "outputs": [
+              {
+                "name": "CONDITIONING",
+                "type": "CONDITIONING",
+                "links": [
+                  2
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "CLIPTextEncode"
+            },
+            "widgets_values": [
+              "masterpiece, highly detailed, 1girl, floating hair, wind blowing, smooth motion, high quality video, cinematic lighting"
+            ]
+          },
+          {
+            "id": 3,
+            "type": "LTXVideoSampler",
+            "pos": [
+              900,
+              150
+            ],
+            "size": [
+              350,
+              300
+            ],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+              {
+                "name": "image",
+                "type": "IMAGE",
+                "link": 1
+              },
+              {
+                "name": "positive",
+                "type": "CONDITIONING",
+                "link": 2
+              }
+            ],
+            "outputs": [
+              {
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  3
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "LTXVideoSampler"
+            },
+            "widgets_values": [
+              42,
+              "randomize",
+              25,
+              3.0,
+              "ltx-video-2.3.safetensors",
+              97,
+              24
+            ]
+          },
+          {
+            "id": 4,
+            "type": "VAEDecode",
+            "pos": [
+              1300,
+              150
+            ],
+            "size": [
+              210,
+              100
+            ],
+            "flags": {},
+            "order": 3,
+            "mode": 0,
+            "inputs": [
+              {
+                "name": "samples",
+                "type": "LATENT",
+                "link": 3
+              }
+            ],
+            "outputs": [
+              {
+                "name": "IMAGE",
+                "type": "IMAGE",
+                "links": [
+                  4
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "VAEDecode"
+            }
+          },
+          {
+            "id": 5,
+            "type": "VHS_VideoCombine",
+            "pos": [
+              1550,
+              150
+            ],
+            "size": [
+              300,
+              250
+            ],
+            "flags": {},
+            "order": 4,
+            "mode": 0,
+            "inputs": [
+              {
+                "name": "images",
+                "type": "IMAGE",
+                "link": 4
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "VHS_VideoCombine"
+            },
+            "widgets_values": [
+              24,
+              0,
+              "ltx_video_output",
+              "video/h264-mp4",
+              false,
+              true
+            ]
+          }
+        ],
+        "links": [
+          [
+            1,
+            1,
+            0,
+            3,
+            0,
+            "IMAGE"
+          ],
+          [
+            2,
+            2,
+            0,
+            3,
+            1,
+            "CONDITIONING"
+          ],
+          [
+            3,
+            3,
+            0,
+            4,
+            0,
+            "LATENT"
+          ],
+          [
+            4,
+            4,
+            0,
+            5,
+            0,
+            "IMAGE"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "LTX 2.3 Open-Source I2V Pipeline (Free)",
+            "bounding": [
+              50,
+              80,
+              1850,
+              450
+            ],
+            "color": "#10b981"
+          }
+        ]
       }
     }
   ],
@@ -668,7 +1423,12 @@
             const modalTags = document.getElementById('modal-tags');
             const modalSummary = document.getElementById('modal-summary');
             const modalDetailsContainer = document.getElementById('modal-details-container');
+            const modalJsonPreview = document.getElementById('modal-json-preview');
+            const modalCopyJsonBtn = document.getElementById('modal-copy-json-btn');
+            const modalDownloadJsonBtn = document.getElementById('modal-download-json-btn');
             const modalUrlBtn = document.getElementById('modal-url-btn');
+
+            let currentModalItem = null;
 
             let allItems = [];
             if (DB_DATA) {
@@ -686,7 +1446,6 @@
                 cardGrid.innerHTML = '';
 
                 const filtered = allItems.filter(item => {
-                    // Filter check
                     let passFilter = true;
                     if (currentFilter === 'free') passFilter = item.is_free_os === true;
                     else if (currentFilter === 'paid') passFilter = item.is_free_os === false;
@@ -694,7 +1453,6 @@
                     else if (currentFilter === 'consistency') passFilter = item.category.includes('一貫性') || (item.tags && item.tags.includes('Character Consistency'));
                     else if (currentFilter === 'reddit') passFilter = item.id.startsWith('reddit');
 
-                    // Search check
                     let passSearch = true;
                     if (searchQuery) {
                         const q = searchQuery.toLowerCase();
@@ -733,21 +1491,61 @@
                             <h3 class="card-title">${item.title}</h3>
                             <p class="card-summary">${item.summary}</p>
                             <div class="model-tags">${tagsHtml}</div>
+                            <div class="card-action-bar">
+                                <button class="btn-action download-quick-btn">💾 Canvas JSON</button>
+                                <button class="btn-action copy-quick-btn">📋 コピー</button>
+                            </div>
                         </div>
-                        <div class="card-footer">
+                        <div class="card-footer" style="margin-top: 1rem;">
                             <span>${item.updated || ''}</span>
-                            <button class="btn-link view-details-btn" style="background:none; border:none; cursor:pointer;">詳細を見る →</button>
+                            <button class="btn-link view-details-btn" style="background:none; border:none; cursor:pointer;">詳細ノード構成 →</button>
                         </div>
                     `;
 
-                    const btn = card.querySelector('.view-details-btn');
-                    btn.addEventListener('click', () => openModal(item));
+                    const btnDetails = card.querySelector('.view-details-btn');
+                    btnDetails.addEventListener('click', () => openModal(item));
+
+                    const btnDownload = card.querySelector('.download-quick-btn');
+                    btnDownload.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        downloadWorkflowJson(item);
+                    });
+
+                    const btnCopy = card.querySelector('.copy-quick-btn');
+                    btnCopy.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        copyWorkflowJson(item, btnCopy);
+                    });
 
                     cardGrid.appendChild(card);
                 });
             }
 
+            function copyWorkflowJson(item, btnElem) {
+                const jsonStr = JSON.stringify(item.workflow_json || {}, null, 2);
+                navigator.clipboard.writeText(jsonStr).then(() => {
+                    const origText = btnElem.textContent;
+                    btnElem.textContent = '✅ コピー完了!';
+                    setTimeout(() => { btnElem.textContent = origText; }, 2000);
+                });
+            }
+
+            function downloadWorkflowJson(item) {
+                const jsonStr = JSON.stringify(item.workflow_json || {}, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const safeTitle = (item.title || 'floyo_workflow').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                a.download = `${safeTitle}.canvas.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
             function openModal(item) {
+                currentModalItem = item;
                 modalCategory.textContent = item.category;
                 modalTitle.textContent = item.title;
                 modalSummary.textContent = item.summary;
@@ -777,8 +1575,19 @@
                     modalDetailsContainer.innerHTML = html;
                 }
 
+                const jsonStr = JSON.stringify(item.workflow_json || {}, null, 2);
+                modalJsonPreview.textContent = jsonStr;
+
                 modalOverlay.style.display = 'flex';
             }
+
+            modalCopyJsonBtn.addEventListener('click', () => {
+                if (currentModalItem) copyWorkflowJson(currentModalItem, modalCopyJsonBtn);
+            });
+
+            modalDownloadJsonBtn.addEventListener('click', () => {
+                if (currentModalItem) downloadWorkflowJson(currentModalItem);
+            });
 
             modalClose.addEventListener('click', () => {
                 modalOverlay.style.display = 'none';

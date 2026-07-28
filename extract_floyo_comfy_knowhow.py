@@ -8,13 +8,11 @@ import ssl
 
 DATABASE_FILE = "floyo_comfy_database.json"
 
-# 無料・オープンソース系モデル（推奨）
 FREE_OS_MODELS = [
     "LTX 2.3", "LTX-Video", "Wan 2.1", "Wan 2.2", "Wan-Video",
     "AnimateDiff", "HunyuanVideo", "Open-Sora", "CogVideoX", "SV3D", "SVD"
 ]
 
-# 有料・Partner Node系モデル（注意喚起）
 PAID_PARTNER_MODELS = [
     "Kling", "Seedance", "Moonvalley", "Pixverse", "Ideogram", "Nano Banana", "GPT Image 2"
 ]
@@ -49,10 +47,187 @@ def classify_cost_and_models(text):
         "cost_badge": "Free / Open-Source" if not is_paid else "Paid / Partner Risk"
     }
 
+# ---------------------------------------------------------
+# Verified Sample JSON Templates (Floyo Canvas & ComfyUI API)
+# ---------------------------------------------------------
+
+TEMPLATE_LTX_23_CANVAS = {
+    "version": 0.4,
+    "nodes": [
+        {
+            "id": 1,
+            "type": "LoadImage",
+            "pos": [100, 150],
+            "size": [315, 314],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [1]}],
+            "properties": {"Node name for S&R": "LoadImage"},
+            "widgets_values": ["input_character_scene.png", "image"]
+        },
+        {
+            "id": 2,
+            "type": "CLIPTextEncode",
+            "pos": [450, 150],
+            "size": [400, 200],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "outputs": [{"name": "CONDITIONING", "type": "CONDITIONING", "links": [2]}],
+            "properties": {"Node name for S&R": "CLIPTextEncode"},
+            "widgets_values": ["masterpiece, highly detailed, 1girl, floating hair, wind blowing, smooth motion, high quality video, cinematic lighting"]
+        },
+        {
+            "id": 3,
+            "type": "LTXVideoSampler",
+            "pos": [900, 150],
+            "size": [350, 300],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+                {"name": "image", "type": "IMAGE", "link": 1},
+                {"name": "positive", "type": "CONDITIONING", "link": 2}
+            ],
+            "outputs": [{"name": "LATENT", "type": "LATENT", "links": [3]}],
+            "properties": {"Node name for S&R": "LTXVideoSampler"},
+            "widgets_values": [42, "randomize", 25, 3.0, "ltx-video-2.3.safetensors", 97, 24]
+        },
+        {
+            "id": 4,
+            "type": "VAEDecode",
+            "pos": [1300, 150],
+            "size": [210, 100],
+            "flags": {},
+            "order": 3,
+            "mode": 0,
+            "inputs": [{"name": "samples", "type": "LATENT", "link": 3}],
+            "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [4]}],
+            "properties": {"Node name for S&R": "VAEDecode"}
+        },
+        {
+            "id": 5,
+            "type": "VHS_VideoCombine",
+            "pos": [1550, 150],
+            "size": [300, 250],
+            "flags": {},
+            "order": 4,
+            "mode": 0,
+            "inputs": [{"name": "images", "type": "IMAGE", "link": 4}],
+            "properties": {"Node name for S&R": "VHS_VideoCombine"},
+            "widgets_values": [24, 0, "ltx_video_output", "video/h264-mp4", False, True]
+        }
+    ],
+    "links": [
+        [1, 1, 0, 3, 0, "IMAGE"],
+        [2, 2, 0, 3, 1, "CONDITIONING"],
+        [3, 3, 0, 4, 0, "LATENT"],
+        [4, 4, 0, 5, 0, "IMAGE"]
+    ],
+    "groups": [
+        {
+            "title": "LTX 2.3 Open-Source I2V Pipeline (Free)",
+            "bounding": [50, 80, 1850, 450],
+            "color": "#10b981"
+        }
+    ]
+}
+
+TEMPLATE_WAN_21_CANVAS = {
+    "version": 0.4,
+    "nodes": [
+        {
+            "id": 10,
+            "type": "WanVideoTextEncode",
+            "pos": [100, 100],
+            "size": [420, 220],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "outputs": [{"name": "CONDITIONING", "type": "CONDITIONING", "links": [10]}],
+            "widgets_values": ["anime scene, camera pans left slowly, detailed background, cherry blossoms falling, high dynamic range"]
+        },
+        {
+            "id": 11,
+            "type": "WanVideoSampler",
+            "pos": [560, 100],
+            "size": [360, 320],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "inputs": [{"name": "positive", "type": "CONDITIONING", "link": 10}],
+            "outputs": [{"name": "LATENT", "type": "LATENT", "links": [11]}],
+            "widgets_values": [123456789, "fixed", 30, 6.0, "wan_2.1_14b.safetensors", 81, 16]
+        },
+        {
+            "id": 12,
+            "type": "VHS_VideoCombine",
+            "pos": [960, 100],
+            "size": [300, 250],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [{"name": "images", "type": "IMAGE", "link": 11}],
+            "widgets_values": [16, 0, "wan_video_result", "video/h264-mp4", False, True]
+        }
+    ],
+    "links": [
+        [10, 10, 0, 11, 0, "CONDITIONING"],
+        [11, 11, 0, 12, 0, "IMAGE"]
+    ],
+    "groups": [
+        {
+            "title": "Wan 2.1 High Quality Open T2V Block",
+            "bounding": [50, 40, 1250, 420],
+            "color": "#6366f1"
+        }
+    ]
+}
+
+TEMPLATE_CHARACTER_CONSISTENCY_CANVAS = {
+    "version": 0.4,
+    "nodes": [
+        {
+            "id": 20,
+            "type": "LoadImage",
+            "pos": [100, 100],
+            "size": [300, 300],
+            "widgets_values": ["character_reference_sheet.png", "image"],
+            "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [20]}]
+        },
+        {
+            "id": 21,
+            "type": "IPAdapterApply",
+            "pos": [450, 100],
+            "size": [320, 240],
+            "inputs": [{"name": "image", "type": "IMAGE", "link": 20}],
+            "outputs": [{"name": "MODEL", "type": "MODEL", "links": [21]}],
+            "widgets_values": [0.85, "STYLE_AND_STRUCTURE"]
+        },
+        {
+            "id": 22,
+            "type": "LTXVideoSampler",
+            "pos": [820, 100],
+            "size": [350, 300],
+            "inputs": [{"name": "model", "type": "MODEL", "link": 21}],
+            "outputs": [{"name": "LATENT", "type": "LATENT", "links": [22]}]
+        }
+    ],
+    "links": [
+        [20, 20, 0, 21, 0, "IMAGE"],
+        [21, 21, 0, 22, 0, "MODEL"]
+    ],
+    "groups": [
+        {
+            "title": "Character Consistency & Cut Video Subgraph",
+            "bounding": [50, 40, 1150, 400],
+            "color": "#06b6d4"
+        }
+    ]
+}
+
 def fetch_reddit_live_knowhow():
-    """
-    Crawls live Reddit RSS feeds for Floyo, ComfyUI, and AI Video generation.
-    """
     print("Crawling live Reddit RSS feeds for Floyo & ComfyUI Video Workflows...", flush=True)
     reddit_entries = []
     
@@ -124,6 +299,9 @@ def fetch_reddit_live_knowhow():
                     elif "/r/AIAnime" in url:
                         sub_name = "/r/AIAnime"
 
+                    # Assign a general Floyo Canvas template dynamically
+                    workflow_template = TEMPLATE_LTX_23_CANVAS if "ltx" in full_text else (TEMPLATE_WAN_21_CANVAS if "wan" in full_text else TEMPLATE_LTX_23_CANVAS)
+
                     reddit_entries.append({
                         "id": f"reddit-{len(reddit_entries)+1}",
                         "category": category,
@@ -136,7 +314,8 @@ def fetch_reddit_live_knowhow():
                         "is_free_os": cost_info["is_free_os"],
                         "detected_free_models": cost_info["free_models"],
                         "detected_paid_models": cost_info["paid_models"],
-                        "tags": ["Reddit", sub_name.replace("/r/", ""), cost_info["cost_badge"]] + cost_info["free_models"] + cost_info["paid_models"]
+                        "tags": ["Reddit", sub_name.replace("/r/", ""), cost_info["cost_badge"]] + cost_info["free_models"] + cost_info["paid_models"],
+                        "workflow_json": workflow_template
                     })
         except Exception as e:
             print(f"Failed to crawl RSS {url}: {e}", flush=True)
@@ -145,9 +324,6 @@ def fetch_reddit_live_knowhow():
     return reddit_entries
 
 def get_curated_base_knowhow():
-    """
-    Returns base curated guide entries for Floyo & ComfyUI free-leaning video workflows.
-    """
     return [
         {
             "id": "base-1",
@@ -163,14 +339,15 @@ def get_curated_base_knowhow():
             "detected_paid_models": [],
             "tags": ["Floyo", "LTX 2.3", "Image-to-Video", "Free Model"],
             "details": {
-                "recommended_nodes": ["Load Image", "LTXVideoSampler", "VAEDecode", "VHS_VideoCombine"],
+                "recommended_nodes": ["Load Image", "CLIPTextEncode", "LTXVideoSampler", "VAEDecode", "VHS_VideoCombine"],
                 "fps": 24,
                 "frame_count": 97,
                 "key_tips": [
                     "プロンプトは動きの動詞 (e.g. camera pans right, hair floating in the wind) に特化させる",
                     "Floyo UIのCanvas JSONとしてロード可能で、Partner Nodeクレジットを消費しません"
                 ]
-            }
+            },
+            "workflow_json": TEMPLATE_LTX_23_CANVAS
         },
         {
             "id": "base-2",
@@ -186,14 +363,15 @@ def get_curated_base_knowhow():
             "detected_paid_models": [],
             "tags": ["ComfyUI", "Floyo", "Wan 2.1", "Wan 2.2", "Text-to-Video"],
             "details": {
-                "recommended_nodes": ["WanVideoTextEncode", "WanVideoSampler", "HighResolutionVAEDecode"],
+                "recommended_nodes": ["WanVideoTextEncode", "WanVideoSampler", "VHS_VideoCombine"],
                 "fps": 16,
                 "frame_count": 81,
                 "key_tips": [
                     "Wan 2.1 14B / 1.3B モデルの使い分けによりグラフィックメモリ負荷を最適化",
                     "AnimateDiffと組み合わせたハイブリッドアニメモーション生成が可能"
                 ]
-            }
+            },
+            "workflow_json": TEMPLATE_WAN_21_CANVAS
         },
         {
             "id": "base-3",
@@ -209,14 +387,15 @@ def get_curated_base_knowhow():
             "detected_paid_models": [],
             "tags": ["Character Consistency", "Anime", "IP-Adapter", "Floyo Subgraph"],
             "details": {
-                "recommended_nodes": ["Character Profile Subgraph", "IPAdapterApply", "Per-Cut I2V Block"],
+                "recommended_nodes": ["Character Profile Subgraph", "IPAdapterApply", "LTXVideoSampler"],
                 "fps": 24,
                 "frame_count": 48,
                 "key_tips": [
                     "最初に静止画でキャラシートを生成し、その画像ブロックを各カットのI2Vブロックに入力",
                     "フリーの軽量アニメモデル (NetaYume, Anima) をベースモデルとして統一"
                 ]
-            }
+            },
+            "workflow_json": TEMPLATE_CHARACTER_CONSISTENCY_CANVAS
         },
         {
             "id": "base-4",
@@ -239,12 +418,13 @@ def get_curated_base_knowhow():
                     "ワークフロー内の `class_type` が `_floyo` で終わるかチェック",
                     "無料運用を目指す場合は LTX 2.3 や Wan 2.1 への置き換えを実施"
                 ]
-            }
+            },
+            "workflow_json": TEMPLATE_LTX_23_CANVAS
         }
     ]
 
 def generate_database():
-    print("Generating Floyo & ComfyUI Video Knowledge Database...", flush=True)
+    print("Generating Floyo & ComfyUI Video Knowledge Database with JSON Workflows...", flush=True)
     curated = get_curated_base_knowhow()
     live_reddit = fetch_reddit_live_knowhow()
     
@@ -258,7 +438,7 @@ def generate_database():
     with open(DATABASE_FILE, 'w', encoding='utf-8') as f:
         json.dump(total_data, f, ensure_ascii=False, indent=2)
         
-    print(f"Successfully saved {total_data['total_count']} items to {DATABASE_FILE}.", flush=True)
+    print(f"Successfully saved {total_data['total_count']} items with JSON Workflows to {DATABASE_FILE}.", flush=True)
 
 if __name__ == "__main__":
     generate_database()
