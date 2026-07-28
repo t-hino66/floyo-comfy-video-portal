@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-07-28 14:38:43",
-  "total_count": 7,
+  "updated_at": "2026-07-28 15:01:22",
+  "total_count": 12,
   "curated_knowhow": [
     {
       "id": "base-1",
@@ -799,7 +799,8 @@
       "is_free_os": true,
       "detected_free_models": [
         "Veo",
-        "Imagen 3"
+        "Imagen 3",
+        "Google Flow"
       ],
       "detected_paid_models": [],
       "tags": [
@@ -918,7 +919,8 @@
       "cost_badge": "Google Labs (Free Trial)",
       "is_free_os": true,
       "detected_free_models": [
-        "Veo"
+        "Veo",
+        "Google Flow"
       ],
       "detected_paid_models": [],
       "tags": [
@@ -1035,7 +1037,8 @@
       "is_free_os": true,
       "detected_free_models": [
         "Imagen 3",
-        "Veo"
+        "Veo",
+        "Google Flow"
       ],
       "detected_paid_models": [],
       "tags": [
@@ -1053,6 +1056,595 @@
         "key_tips": [
           "Imagen 3 で被写体と背景のコントラストが高い構図を先に生成しておくことがコツ",
           "Veo 側でプロンプトを入力する際は 'Keep style of source image' を指定"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              400,
+              180
+            ],
+            "widgets_values": [
+              "Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed",
+              "Veo 2 Video Generator"
+            ],
+            "outputs": [
+              {
+                "name": "PROMPT_FLOW",
+                "type": "FLOW",
+                "links": [
+                  30
+                ]
+              }
+            ]
+          },
+          {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [
+              550,
+              100
+            ],
+            "size": [
+              380,
+              260
+            ],
+            "inputs": [
+              {
+                "name": "flow",
+                "type": "FLOW",
+                "link": 30
+              }
+            ],
+            "widgets_values": [
+              "1080p",
+              "60fps",
+              "Cinematic Motion Control"
+            ],
+            "outputs": [
+              {
+                "name": "VIDEO",
+                "type": "VIDEO",
+                "links": [
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            30,
+            30,
+            0,
+            31,
+            0,
+            "FLOW"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [
+              50,
+              40,
+              920,
+              360
+            ],
+            "color": "#4285f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "google-flow-4",
+      "category": "Google Flow (Google Labs)",
+      "title": "Google Flow でのカット割り・マルチショット演出デザイン",
+      "updated": "2026-07-28",
+      "source": "Google Labs Creator Guide",
+      "summary": "複数ノードを組み合わせ、1つのストーリーとして繋がるショート動画・カット割り動画を制作するノードフロー構成。登場人物の衣装・アングルの整合性を保持。",
+      "url": "https://labs.google/fx/ja/tools/flow",
+      "cost_badge": "Google Labs (Free Trial)",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Veo",
+        "Google Flow"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Google Flow",
+        "Multi-cut",
+        "Storyboarding",
+        "Shot Composition"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Storyboard Flow Node",
+          "Sequential Shot Node"
+        ],
+        "key_tips": [
+          "カットごとにプロンプトのライティング条件 (Golden hour, Cyberpunk neon) を統一",
+          "トランジションノードを介すことで自然なカット切り替えを実現"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              400,
+              180
+            ],
+            "widgets_values": [
+              "Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed",
+              "Veo 2 Video Generator"
+            ],
+            "outputs": [
+              {
+                "name": "PROMPT_FLOW",
+                "type": "FLOW",
+                "links": [
+                  30
+                ]
+              }
+            ]
+          },
+          {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [
+              550,
+              100
+            ],
+            "size": [
+              380,
+              260
+            ],
+            "inputs": [
+              {
+                "name": "flow",
+                "type": "FLOW",
+                "link": 30
+              }
+            ],
+            "widgets_values": [
+              "1080p",
+              "60fps",
+              "Cinematic Motion Control"
+            ],
+            "outputs": [
+              {
+                "name": "VIDEO",
+                "type": "VIDEO",
+                "links": [
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            30,
+            30,
+            0,
+            31,
+            0,
+            "FLOW"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [
+              50,
+              40,
+              920,
+              360
+            ],
+            "color": "#4285f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "google-flow-5",
+      "category": "Google Flow (Google Labs)",
+      "title": "Google Flow でシームレスループ動画・SNS用縦型ショート動画の作成手法",
+      "updated": "2026-07-28",
+      "source": "Google FX Tips & Tricks",
+      "summary": "TikTokやYouTubeショート向けの縦型アスペクト比(9:16)設定と、フレームの最初と最後を滑らかにループさせる動きのモーション補間ノードテクニック。",
+      "url": "https://labs.google/fx/ja/tools/flow",
+      "cost_badge": "Google Labs (Free Trial)",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Veo",
+        "Google Flow"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Google Flow",
+        "Loop Video",
+        "Shorts",
+        "Aspect Ratio 9:16"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Aspect Ratio Switcher (9:16)",
+          "Seamless Loop Sampler"
+        ],
+        "key_tips": [
+          "アスペクト比 9:16 を選択し、中央被写体の動きを中心にフレーミング",
+          "ループ命令: 'seamless infinite loop motion, continuous background motion'"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              400,
+              180
+            ],
+            "widgets_values": [
+              "Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed",
+              "Veo 2 Video Generator"
+            ],
+            "outputs": [
+              {
+                "name": "PROMPT_FLOW",
+                "type": "FLOW",
+                "links": [
+                  30
+                ]
+              }
+            ]
+          },
+          {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [
+              550,
+              100
+            ],
+            "size": [
+              380,
+              260
+            ],
+            "inputs": [
+              {
+                "name": "flow",
+                "type": "FLOW",
+                "link": 30
+              }
+            ],
+            "widgets_values": [
+              "1080p",
+              "60fps",
+              "Cinematic Motion Control"
+            ],
+            "outputs": [
+              {
+                "name": "VIDEO",
+                "type": "VIDEO",
+                "links": [
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            30,
+            30,
+            0,
+            31,
+            0,
+            "FLOW"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [
+              50,
+              40,
+              920,
+              360
+            ],
+            "color": "#4285f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "google-flow-6",
+      "category": "Google Flow (Google Labs)",
+      "title": "Google Flow におけるカスタムスタイルトランスファーと表現コントロール",
+      "updated": "2026-07-28",
+      "source": "Google FX Advanced Manual",
+      "summary": "水彩画・油絵・アニメ風・実写シネマテイストなど、参照画像ノード(Reference Style Node)を組み合わせて入力動画の画風を一括変換するスタイル適用テクニック。",
+      "url": "https://labs.google/fx/ja/tools/flow",
+      "cost_badge": "Google Labs (Free Trial)",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Veo",
+        "Imagen 3",
+        "Google Flow"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Google Flow",
+        "Style Transfer",
+        "Anime Style",
+        "Cinematic"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Style Reference Image Node",
+          "Style Weight Control Node"
+        ],
+        "key_tips": [
+          "スタイル強度は 0.6 〜 0.8 が破綻の少ない黄金比率",
+          "プロンプト側でも 'in the aesthetic of watercolor painting' など補正キーを加える"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              400,
+              180
+            ],
+            "widgets_values": [
+              "Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed",
+              "Veo 2 Video Generator"
+            ],
+            "outputs": [
+              {
+                "name": "PROMPT_FLOW",
+                "type": "FLOW",
+                "links": [
+                  30
+                ]
+              }
+            ]
+          },
+          {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [
+              550,
+              100
+            ],
+            "size": [
+              380,
+              260
+            ],
+            "inputs": [
+              {
+                "name": "flow",
+                "type": "FLOW",
+                "link": 30
+              }
+            ],
+            "widgets_values": [
+              "1080p",
+              "60fps",
+              "Cinematic Motion Control"
+            ],
+            "outputs": [
+              {
+                "name": "VIDEO",
+                "type": "VIDEO",
+                "links": [
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            30,
+            30,
+            0,
+            31,
+            0,
+            "FLOW"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [
+              50,
+              40,
+              920,
+              360
+            ],
+            "color": "#4285f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "google-flow-7",
+      "category": "Google Flow (Google Labs)",
+      "title": "Google Flow と ComfyUI / Floyo ワークフローの相互連携とデータ共有",
+      "updated": "2026-07-28",
+      "source": "AI Video Workflow Architecture",
+      "summary": "Google Flow で作成したVeo動画やImagen3参照画像を書き出し、FloyoやComfyUI（LTX 2.3 / Wan 2.1 ノード）の追加アップスケール・フレーム補間ノードに渡すハイブリッド制作フロー。",
+      "url": "https://labs.google/fx/ja/tools/flow",
+      "cost_badge": "Free / Hybrid Flow",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Veo",
+        "LTX 2.3",
+        "Wan 2.1",
+        "Google Flow"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Google Flow",
+        "Floyo Integration",
+        "ComfyUI Pipeline",
+        "Hybrid Workflows"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Flow Export Node",
+          "ComfyUI Load Video",
+          "VHS_VideoCombine"
+        ],
+        "key_tips": [
+          "Google Flow の高品質な初期モーションを生成し、Floyo/ComfyUIで最終解像度アップスケーリング",
+          "ローカルVRAM負荷と生成速度を両立する最高峰のパイプライン"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              400,
+              180
+            ],
+            "widgets_values": [
+              "Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed",
+              "Veo 2 Video Generator"
+            ],
+            "outputs": [
+              {
+                "name": "PROMPT_FLOW",
+                "type": "FLOW",
+                "links": [
+                  30
+                ]
+              }
+            ]
+          },
+          {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [
+              550,
+              100
+            ],
+            "size": [
+              380,
+              260
+            ],
+            "inputs": [
+              {
+                "name": "flow",
+                "type": "FLOW",
+                "link": 30
+              }
+            ],
+            "widgets_values": [
+              "1080p",
+              "60fps",
+              "Cinematic Motion Control"
+            ],
+            "outputs": [
+              {
+                "name": "VIDEO",
+                "type": "VIDEO",
+                "links": [
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            30,
+            30,
+            0,
+            31,
+            0,
+            "FLOW"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [
+              50,
+              40,
+              920,
+              360
+            ],
+            "color": "#4285f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "google-flow-8",
+      "category": "Google Flow (Google Labs)",
+      "title": "Google Flow での物理シミュレーション風プロンプト（液体・炎・風・粒子）",
+      "updated": "2026-07-28",
+      "source": "Google FX VFX Showcase",
+      "summary": "Veo モデルの高度な物理エンジン理解を活かしたエフェクト動画制作。水しぶき、爆発、炎、煙、光の粒子のリアルな動きをコントロールするプロンプト事例。",
+      "url": "https://labs.google/fx/ja/tools/flow",
+      "cost_badge": "Google Labs (Free Trial)",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Veo",
+        "Google Flow"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Google Flow",
+        "VFX Effects",
+        "Physics Simulation",
+        "Veo Prompts"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "VFX Dynamics Node",
+          "Veo 2 Sampler"
+        ],
+        "key_tips": [
+          "プロンプト例: 'Slow motion splash of liquid gold forming a dragon shape, high speed camera, 1000fps effect'",
+          "流体・粒子の反射表現には 'volumetric lighting, refraction' を追加"
         ]
       },
       "workflow_json": {

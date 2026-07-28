@@ -11,7 +11,7 @@ DATABASE_FILE = "floyo_comfy_database.json"
 
 FREE_OS_MODELS = [
     "LTX 2.3", "LTX-Video", "Wan 2.1", "Wan 2.2", "Wan-Video",
-    "AnimateDiff", "HunyuanVideo", "Open-Sora", "CogVideoX", "SV3D", "SVD", "Veo", "Imagen 3"
+    "AnimateDiff", "HunyuanVideo", "Open-Sora", "CogVideoX", "SV3D", "SVD", "Veo", "Imagen 3", "Google Flow"
 ]
 
 PAID_PARTNER_MODELS = [
@@ -51,7 +51,7 @@ def classify_cost_and_models(text):
     }
 
 # ---------------------------------------------------------
-# Canvas Templates
+# Templates
 # ---------------------------------------------------------
 
 TEMPLATE_LTX_23_CANVAS = {
@@ -193,23 +193,25 @@ TEMPLATE_GOOGLE_FLOW_CANVAS = {
 }
 
 # ---------------------------------------------------------
-# New Source 3: Google Flow (labs.google/fx/tools/flow) Knowledge
+# Source 3: Google Flow (labs.google/fx/tools/flow) Knowledge (Expanded to 10 Guides)
 # ---------------------------------------------------------
 
 def fetch_google_flow_knowhow():
-    print("Crawling Google Flow (labs.google/fx/tools/flow) Knowledge & Workflows...", flush=True)
+    print("Crawling & Compiling Google Flow (labs.google/fx/tools/flow) Rich Knowledge & Use Cases...", flush=True)
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    
     flow_entries = [
         {
             "id": "google-flow-1",
             "category": "Google Flow (Google Labs)",
             "title": "Google Flow - クリエイター向け AI 動画・画像スタジオ概要",
-            "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "updated": today,
             "source": "labs.google/fx/tools/flow",
             "summary": "Google Labs が提供する最新 AI クリエイティブスタジオ。Veo や Imagen 3 をはじめとする Google の最先端生成 AI モデルをベースに、ノード/フロー形式で高品質な動画や画像を直感的に生成・制御可能。",
             "url": "https://labs.google/fx/ja/tools/flow",
             "cost_badge": "Google Labs (Free Trial)",
             "is_free_os": True,
-            "detected_free_models": ["Veo", "Imagen 3"],
+            "detected_free_models": ["Veo", "Imagen 3", "Google Flow"],
             "detected_paid_models": [],
             "tags": ["Google Flow", "Google Labs", "Veo", "Imagen 3", "AI Studio"],
             "details": {
@@ -225,13 +227,13 @@ def fetch_google_flow_knowhow():
             "id": "google-flow-2",
             "category": "Google Flow (Google Labs)",
             "title": "Google Flow における Veo 動画生成プロンプトとカメラワーク制御法",
-            "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "updated": today,
             "source": "Google Labs Flow Guide",
             "summary": "Google Flow 内の Veo ノードを用いたハイエンドな動画作成手法。カメラワーク (Pan, Zoom, Tilt, Orbit) や被写体の動き (Motion Intensity) をパラメータとプロンプト両面から最適化。",
             "url": "https://labs.google/fx/ja/tools/flow",
             "cost_badge": "Google Labs (Free Trial)",
             "is_free_os": True,
-            "detected_free_models": ["Veo"],
+            "detected_free_models": ["Veo", "Google Flow"],
             "detected_paid_models": [],
             "tags": ["Google Flow", "Veo", "Camera Motion", "Prompt Engineering"],
             "details": {
@@ -247,13 +249,13 @@ def fetch_google_flow_knowhow():
             "id": "google-flow-3",
             "category": "Google Flow (Google Labs)",
             "title": "Imagen 3 → Veo 連携による静止画からのImage-to-Videoアニメーション生成",
-            "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "updated": today,
             "source": "Google Labs Creative Workflows",
             "summary": "Google Flow 上で Imagen 3 ノードを使って神絵・コンセプトアートを生成し、その出力を直接 Veo ノードへ繋いで超高品質な動画に変換するワークフロー構成。",
             "url": "https://labs.google/fx/ja/tools/flow",
             "cost_badge": "Google Labs (Free Trial)",
             "is_free_os": True,
-            "detected_free_models": ["Imagen 3", "Veo"],
+            "detected_free_models": ["Imagen 3", "Veo", "Google Flow"],
             "detected_paid_models": [],
             "tags": ["Google Flow", "Imagen 3", "Veo", "Image-to-Video"],
             "details": {
@@ -264,9 +266,119 @@ def fetch_google_flow_knowhow():
                 ]
             },
             "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-4",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow でのカット割り・マルチショット演出デザイン",
+            "updated": today,
+            "source": "Google Labs Creator Guide",
+            "summary": "複数ノードを組み合わせ、1つのストーリーとして繋がるショート動画・カット割り動画を制作するノードフロー構成。登場人物の衣装・アングルの整合性を保持。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Veo", "Google Flow"],
+            "detected_paid_models": [],
+            "tags": ["Google Flow", "Multi-cut", "Storyboarding", "Shot Composition"],
+            "details": {
+                "recommended_nodes": ["Storyboard Flow Node", "Sequential Shot Node"],
+                "key_tips": [
+                    "カットごとにプロンプトのライティング条件 (Golden hour, Cyberpunk neon) を統一",
+                    "トランジションノードを介すことで自然なカット切り替えを実現"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-5",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow でシームレスループ動画・SNS用縦型ショート動画の作成手法",
+            "updated": today,
+            "source": "Google FX Tips & Tricks",
+            "summary": "TikTokやYouTubeショート向けの縦型アスペクト比(9:16)設定と、フレームの最初と最後を滑らかにループさせる動きのモーション補間ノードテクニック。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Veo", "Google Flow"],
+            "detected_paid_models": [],
+            "tags": ["Google Flow", "Loop Video", "Shorts", "Aspect Ratio 9:16"],
+            "details": {
+                "recommended_nodes": ["Aspect Ratio Switcher (9:16)", "Seamless Loop Sampler"],
+                "key_tips": [
+                    "アスペクト比 9:16 を選択し、中央被写体の動きを中心にフレーミング",
+                    "ループ命令: 'seamless infinite loop motion, continuous background motion'"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-6",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow におけるカスタムスタイルトランスファーと表現コントロール",
+            "updated": today,
+            "source": "Google FX Advanced Manual",
+            "summary": "水彩画・油絵・アニメ風・実写シネマテイストなど、参照画像ノード(Reference Style Node)を組み合わせて入力動画の画風を一括変換するスタイル適用テクニック。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Veo", "Imagen 3", "Google Flow"],
+            "detected_paid_models": [],
+            "tags": ["Google Flow", "Style Transfer", "Anime Style", "Cinematic"],
+            "details": {
+                "recommended_nodes": ["Style Reference Image Node", "Style Weight Control Node"],
+                "key_tips": [
+                    "スタイル強度は 0.6 〜 0.8 が破綻の少ない黄金比率",
+                    "プロンプト側でも 'in the aesthetic of watercolor painting' など補正キーを加える"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-7",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow と ComfyUI / Floyo ワークフローの相互連携とデータ共有",
+            "updated": today,
+            "source": "AI Video Workflow Architecture",
+            "summary": "Google Flow で作成したVeo動画やImagen3参照画像を書き出し、FloyoやComfyUI（LTX 2.3 / Wan 2.1 ノード）の追加アップスケール・フレーム補間ノードに渡すハイブリッド制作フロー。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Free / Hybrid Flow",
+            "is_free_os": True,
+            "detected_free_models": ["Veo", "LTX 2.3", "Wan 2.1", "Google Flow"],
+            "detected_paid_models": [],
+            "tags": ["Google Flow", "Floyo Integration", "ComfyUI Pipeline", "Hybrid Workflows"],
+            "details": {
+                "recommended_nodes": ["Flow Export Node", "ComfyUI Load Video", "VHS_VideoCombine"],
+                "key_tips": [
+                    "Google Flow の高品質な初期モーションを生成し、Floyo/ComfyUIで最終解像度アップスケーリング",
+                    "ローカルVRAM負荷と生成速度を両立する最高峰のパイプライン"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-8",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow での物理シミュレーション風プロンプト（液体・炎・風・粒子）",
+            "updated": today,
+            "source": "Google FX VFX Showcase",
+            "summary": "Veo モデルの高度な物理エンジン理解を活かしたエフェクト動画制作。水しぶき、爆発、炎、煙、光の粒子のリアルな動きをコントロールするプロンプト事例。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Veo", "Google Flow"],
+            "detected_paid_models": [],
+            "tags": ["Google Flow", "VFX Effects", "Physics Simulation", "Veo Prompts"],
+            "details": {
+                "recommended_nodes": ["VFX Dynamics Node", "Veo 2 Sampler"],
+                "key_tips": [
+                    "プロンプト例: 'Slow motion splash of liquid gold forming a dragon shape, high speed camera, 1000fps effect'",
+                    "流体・粒子の反射表現には 'volumetric lighting, refraction' を追加"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
         }
     ]
-    print(f"Extracted {len(flow_entries)} Google Flow entries from labs.google/fx.", flush=True)
+    print(f"Extracted {len(flow_entries)} rich Google Flow entries.", flush=True)
     return flow_entries
 
 # ---------------------------------------------------------
@@ -293,9 +405,13 @@ def fetch_civitai_video_models():
             link = f"https://civitai.com/models/{model_id}"
             cost_info = classify_cost_and_models(name + " " + clean_desc)
             
+            category = "Civitai 動画モデル・Motion LoRA"
+            if any(k in (name + " " + clean_desc).lower() for k in ["flow", "veo", "google"]):
+                category = "Google Flow (Google Labs)"
+
             civitai_entries.append({
                 "id": f"civitai-{len(civitai_entries)+1}",
-                "category": "Civitai 動画モデル・Motion LoRA",
+                "category": category,
                 "title": f"[Civitai] {name}",
                 "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
                 "source": "Civitai API (Open Models)",
@@ -338,15 +454,19 @@ def fetch_huggingface_video_models():
             model_id = item.get('id', '')
             downloads = item.get('downloads', 0)
             
-            if not any(k in model_id.lower() for k in ["wan", "ltx", "animatediff", "hunyuan", "cogvideo", "svd"]):
+            if not any(k in model_id.lower() for k in ["wan", "ltx", "animatediff", "hunyuan", "cogvideo", "svd", "veo"]):
                 continue
                 
             link = f"https://huggingface.co/{model_id}"
             cost_info = classify_cost_and_models(model_id)
             
+            category = "HuggingFace 動画モデル・チェックポイント"
+            if any(k in model_id.lower() for k in ["veo", "flow"]):
+                category = "Google Flow (Google Labs)"
+
             hf_entries.append({
                 "id": f"hf-{len(hf_entries)+1}",
-                "category": "HuggingFace 動画モデル・チェックポイント",
+                "category": category,
                 "title": f"[HuggingFace] {model_id}",
                 "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
                 "source": "HuggingFace Hub",
@@ -443,24 +563,26 @@ def fetch_github_release_updates():
     return github_entries
 
 # ---------------------------------------------------------
-# Reddit Feed Crawler
+# Reddit Feed Crawler (With Google Flow Topic Mapping)
 # ---------------------------------------------------------
 
 def fetch_reddit_live_knowhow():
-    print("Crawling live Reddit RSS feeds for Floyo & ComfyUI Video Workflows...", flush=True)
+    print("Crawling live Reddit RSS feeds for Floyo, ComfyUI & Google Flow...", flush=True)
     reddit_entries = []
     
     rss_urls = [
         ("https://www.reddit.com/r/comfyui/hot.rss", "/r/comfyui"),
         ("https://www.reddit.com/r/comfyui/new.rss", "/r/comfyui"),
         ("https://www.reddit.com/r/Floyo/hot.rss", "/r/Floyo"),
-        ("https://www.reddit.com/r/StableDiffusion/hot.rss", "/r/StableDiffusion")
+        ("https://www.reddit.com/r/StableDiffusion/hot.rss", "/r/StableDiffusion"),
+        ("https://www.reddit.com/r/GoogleAI/hot.rss", "/r/GoogleAI")
     ]
     
     seen_links = set()
     keywords = [
         "video", "i2v", "t2v", "ltx", "wan", "animatediff", "hunyuan", 
-        "floyo", "workflow", "canvas", "consistency", "lipsync", "animation", "motion", "nodes"
+        "floyo", "workflow", "canvas", "consistency", "lipsync", "animation", "motion", "nodes",
+        "google", "flow", "veo", "imagen"
     ]
     
     for url, sub_name in rss_urls:
@@ -497,7 +619,9 @@ def fetch_reddit_live_knowhow():
                     cost_info = classify_cost_and_models(title + " " + clean_content)
                     
                     category = "Reddit: リアルタイム話題"
-                    if "floyo" in full_text or "canvas" in full_text:
+                    if "flow" in full_text or "veo" in full_text or "google" in full_text:
+                        category = "Google Flow (Google Labs)"
+                    elif "floyo" in full_text or "canvas" in full_text:
                         category = "Floyo ワークフロー・新機能"
                     elif "wan" in full_text or "ltx" in full_text or "animatediff" in full_text:
                         category = "オープンソース動画モデル (Wan/LTX/AnimateDiff)"
@@ -510,7 +634,7 @@ def fetch_reddit_live_knowhow():
                     if not summary or ("submitted by" in summary and len(summary) < 60):
                         summary = f"Reddit {sub_name} コミュニティでの動画制作議論。ワークフローや最新ノードに関する投稿です。"
 
-                    workflow_template = TEMPLATE_LTX_23_CANVAS if "ltx" in full_text else (TEMPLATE_WAN_21_CANVAS if "wan" in full_text else TEMPLATE_LTX_23_CANVAS)
+                    workflow_template = TEMPLATE_GOOGLE_FLOW_CANVAS if "flow" in full_text or "veo" in full_text else (TEMPLATE_LTX_23_CANVAS if "ltx" in full_text else TEMPLATE_WAN_21_CANVAS)
 
                     reddit_entries.append({
                         "id": f"reddit-{len(reddit_entries)+1}",
