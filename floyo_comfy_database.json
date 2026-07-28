@@ -1,0 +1,149 @@
+{
+  "updated_at": "2026-07-28 13:20:46",
+  "total_count": 4,
+  "curated_knowhow": [
+    {
+      "id": "base-1",
+      "category": "Floyo 推奨動画ワークフロー",
+      "title": "LTX 2.3 オープンソース Image-to-Video 黄金構成",
+      "updated": "2026-07-28",
+      "source": "Floyo Workflow Guide & ComfyUI Standards",
+      "summary": "Floyoで最も安定して低コスト/無料で動くLTX 2.3モデルを用いたImage-to-Video構成。入力画像の色調・輪郭を保ちつつスムーズなカメラワークとキャラモーションを実現。",
+      "url": "https://github.com/",
+      "cost_badge": "Free / Open-Source",
+      "is_free_os": true,
+      "detected_free_models": [
+        "LTX 2.3",
+        "LTX-Video"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Floyo",
+        "LTX 2.3",
+        "Image-to-Video",
+        "Free Model"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Load Image",
+          "LTXVideoSampler",
+          "VAEDecode",
+          "VHS_VideoCombine"
+        ],
+        "fps": 24,
+        "frame_count": 97,
+        "key_tips": [
+          "プロンプトは動きの動詞 (e.g. camera pans right, hair floating in the wind) に特化させる",
+          "Floyo UIのCanvas JSONとしてロード可能で、Partner Nodeクレジットを消費しません"
+        ]
+      }
+    },
+    {
+      "id": "base-2",
+      "category": "オープンソース動画モデル",
+      "title": "Wan 2.1 / Wan 2.2 高画質動画生成ノード構成 (ComfyUI / Floyo)",
+      "updated": "2026-07-28",
+      "source": "ComfyUI Community & Wan-Video Open Model Spec",
+      "summary": "商用・個人利用ともに高品質なオープンソースモデル Wan 2.1 / 2.2 を用いたT2V/I2Vパイプライン。実写・アニメ両対応で破綻の少ない動画を生成。",
+      "url": "https://github.com/",
+      "cost_badge": "Free / Open-Source",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Wan 2.1",
+        "Wan 2.2"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "ComfyUI",
+        "Floyo",
+        "Wan 2.1",
+        "Wan 2.2",
+        "Text-to-Video"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "WanVideoTextEncode",
+          "WanVideoSampler",
+          "HighResolutionVAEDecode"
+        ],
+        "fps": 16,
+        "frame_count": 81,
+        "key_tips": [
+          "Wan 2.1 14B / 1.3B モデルの使い分けによりグラフィックメモリ負荷を最適化",
+          "AnimateDiffと組み合わせたハイブリッドアニメモーション生成が可能"
+        ]
+      }
+    },
+    {
+      "id": "base-3",
+      "category": "キャラクター一貫性・作画維持",
+      "title": "Anime Next Scene & Qwen キャラクター一貫性カット動画",
+      "updated": "2026-07-28",
+      "source": "Anime Consistency Workflows & Floyo Subgraphs",
+      "summary": "マルチカット動画制作において、1話・複数カットを通じたキャラの顔・衣装・髪型の一貫性を維持するノード設計。IP-Adapter & Reference Control併用。",
+      "url": "https://github.com/",
+      "cost_badge": "Free / Open-Source",
+      "is_free_os": true,
+      "detected_free_models": [
+        "NetaYume Lumina",
+        "Anima",
+        "Z-Anime"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Character Consistency",
+        "Anime",
+        "IP-Adapter",
+        "Floyo Subgraph"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Character Profile Subgraph",
+          "IPAdapterApply",
+          "Per-Cut I2V Block"
+        ],
+        "fps": 24,
+        "frame_count": 48,
+        "key_tips": [
+          "最初に静止画でキャラシートを生成し、その画像ブロックを各カットのI2Vブロックに入力",
+          "フリーの軽量アニメモデル (NetaYume, Anima) をベースモデルとして統一"
+        ]
+      }
+    },
+    {
+      "id": "base-4",
+      "category": "注意喚起・有料Partnerモデル",
+      "title": "Floyoにおける Partner Nodes (Kling / Seedance / Moonvalley) の扱いと判定",
+      "updated": "2026-07-28",
+      "source": "Floyo Safety & Cost Audit Guide",
+      "summary": "Kling, Seedance, Moonvalley, Pixverse などのAPI連携ノード（末尾 `_floyo` または Partner Node 標記）はFloyoのAPIウォレット/クレジットを消費します。無制限の無料運用を行う場合はオープンソースモデルへの置換を推奨。",
+      "url": "https://github.com/",
+      "cost_badge": "Paid / Partner Risk",
+      "is_free_os": false,
+      "detected_free_models": [],
+      "detected_paid_models": [
+        "Kling",
+        "Seedance",
+        "Moonvalley",
+        "Pixverse"
+      ],
+      "tags": [
+        "Partner Nodes",
+        "Cost Audit",
+        "API Wallet"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Replace with LTX 2.3 or Wan 2.1"
+        ],
+        "fps": 30,
+        "frame_count": 120,
+        "key_tips": [
+          "ワークフロー内の `class_type` が `_floyo` で終わるかチェック",
+          "無料運用を目指す場合は LTX 2.3 や Wan 2.1 への置き換えを実施"
+        ]
+      }
+    }
+  ],
+  "reddit_live_topics": []
+}
