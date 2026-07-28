@@ -10,8 +10,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Floyo & ComfyUI Video Workflows | 無料・OSモデル動画制作ポータル</title>
-    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・Civitai/HuggingFace/GitHub/Reddit統合・JSONワークフローダウンロードポータル">
+    <title>Floyo, ComfyUI & Google Flow Video Hub | 動画制作ノード・ワークフローポータル</title>
+    <meta name="description" content="Floyo, ComfyUI, Google Flow (labs.google/fx) での動画制作ワークフロー、Veo, LTX 2.3, Wan2.1のノード構成・JSONダウンロード・最新手法のポータルサイト">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +26,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             --accent-primary: #6366f1;
             --accent-glow: #818cf8;
             --accent-secondary: #06b6d4;
+            --accent-google: #4285f4;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
@@ -125,7 +126,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .hero p {
             font-size: 1.15rem;
             color: var(--text-secondary);
-            max-width: 760px;
+            max-width: 820px;
             margin: 0 auto 2rem;
         }
 
@@ -226,6 +227,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             border-color: var(--accent-primary);
             color: #fff;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .tab-btn.special-gflow.active {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            border-color: #4285f4;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
         }
 
         .grid {
@@ -521,15 +528,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div class="nav-container">
             <div class="logo-group">
                 <div class="logo-icon">F</div>
-                <div class="logo-text">Floyo & ComfyUI Video Hub</div>
+                <div class="logo-text">Floyo, ComfyUI & Google Flow Hub</div>
             </div>
             <a href="https://github.com/t-hino66/floyo-comfy-video-portal" target="_blank" class="btn-link">GitHub Repository ↗</a>
         </div>
     </header>
 
     <div class="hero">
-        <h1>Floyo / ComfyUI 動画制作ワークフロー</h1>
-        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心としたマルチソース統合（Civitai, HuggingFace, GitHub, Reddit）ポータル</p>
+        <h1>Floyo / ComfyUI / Google Flow 動画制作ワークフロー</h1>
+        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）および Google Flow (Google Labs FX: labs.google/fx/tools/flow) の制作事例・ノードワークフロー統合ポータル</p>
         <div class="stats-bar">
             <div class="stat-item">データベース更新: <span class="stat-value" id="last-updated">2026-07-28</span></div>
             <div class="stat-item">総収録アイテム数: <span class="stat-value" id="total-items">0</span></div>
@@ -541,11 +548,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div class="controls">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" placeholder="モデル名 (LTX 2.3, Wan 2.1, AnimateDiff)、ソース名、キーワードで検索...">
+                <input type="text" id="search-input" placeholder="Google Flow, Veo, Wan 2.1, LTX 2.3、キーワードで検索...">
             </div>
 
             <div class="filter-tabs" id="filter-tabs">
                 <button class="tab-btn active" data-filter="all">すべて表示</button>
+                <button class="tab-btn special-gflow" data-filter="gflow">✨ Google Flow 動画制作</button>
                 <button class="tab-btn" data-filter="free">無料/オープンソースモデル</button>
                 <button class="tab-btn" data-filter="civitai">Civitai モジュール</button>
                 <button class="tab-btn" data-filter="hf">HuggingFace モデル</button>
@@ -590,7 +598,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <footer>
-        <p>Built with Python & Pure Web Tech | Multi-Source Integration (Civitai API, HuggingFace Hub, GitHub Releases, Reddit RSS)</p>
+        <p>Built with Python & Pure Web Tech | Multi-Source Integration (Google Labs Flow, Civitai API, HuggingFace Hub, GitHub Releases, Reddit RSS)</p>
         <p style="margin-top: 0.5rem; font-size: 0.8rem;">※ Downloaded .json files can be directly dragged & dropped into Floyo UI Canvas.</p>
     </footer>
 
@@ -625,11 +633,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             if (DB_DATA) {
                 lastUpdatedElem.textContent = DB_DATA.updated_at || '2026-07-28';
                 const curated = DB_DATA.curated_knowhow || [];
+                const gflow = DB_DATA.google_flow_items || [];
                 const civitai = DB_DATA.civitai_items || [];
                 const hf = DB_DATA.hf_items || [];
                 const github = DB_DATA.github_updates || [];
                 const reddit = DB_DATA.reddit_live_topics || [];
-                allItems = [...curated, ...civitai, ...hf, ...github, ...reddit];
+                allItems = [...curated, ...gflow, ...civitai, ...hf, ...github, ...reddit];
                 totalItemsElem.textContent = allItems.length;
             }
 
@@ -643,6 +652,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     let passFilter = true;
                     if (currentFilter === 'free') passFilter = item.is_free_os === true;
                     else if (currentFilter === 'paid') passFilter = item.is_free_os === false;
+                    else if (currentFilter === 'gflow') passFilter = item.id.startsWith('google-flow') || item.category.includes('Google Flow') || (item.tags && item.tags.includes('Google Flow'));
                     else if (currentFilter === 'civitai') passFilter = item.id.startsWith('civitai');
                     else if (currentFilter === 'hf') passFilter = item.id.startsWith('hf');
                     else if (currentFilter === 'github') passFilter = item.id.startsWith('github');
@@ -762,7 +772,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     let html = '';
                     if (item.details.recommended_nodes) {
                         html += `
-                            <div class="modal-section-title">推奨ノード構成</div>
+                            <div class="modal-section-title">推奨ノード構成 / ツール要素</div>
                             <ul class="node-list">
                                 ${item.details.recommended_nodes.map(n => `<li>🔹 ${n}</li>`).join('')}
                             </ul>
@@ -822,7 +832,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 """
 
 def build_site():
-    print("Building static index.html from database with Source & Updated Date meta labels...", flush=True)
+    print("Building static index.html with Google Flow (labs.google/fx) tab & dataset...", flush=True)
     if not os.path.exists(DATABASE_FILE):
         print(f"Error: {DATABASE_FILE} not found. Run extract_floyo_comfy_knowhow.py first.")
         return

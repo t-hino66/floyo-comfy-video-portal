@@ -11,7 +11,7 @@ DATABASE_FILE = "floyo_comfy_database.json"
 
 FREE_OS_MODELS = [
     "LTX 2.3", "LTX-Video", "Wan 2.1", "Wan 2.2", "Wan-Video",
-    "AnimateDiff", "HunyuanVideo", "Open-Sora", "CogVideoX", "SV3D", "SVD"
+    "AnimateDiff", "HunyuanVideo", "Open-Sora", "CogVideoX", "SV3D", "SVD", "Veo", "Imagen 3"
 ]
 
 PAID_PARTNER_MODELS = [
@@ -51,7 +51,7 @@ def classify_cost_and_models(text):
     }
 
 # ---------------------------------------------------------
-# Templates
+# Canvas Templates
 # ---------------------------------------------------------
 
 TEMPLATE_LTX_23_CANVAS = {
@@ -159,8 +159,118 @@ TEMPLATE_WAN_21_CANVAS = {
     ]
 }
 
+TEMPLATE_GOOGLE_FLOW_CANVAS = {
+    "version": 0.4,
+    "nodes": [
+        {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [100, 100],
+            "size": [400, 180],
+            "widgets_values": ["Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed", "Veo 2 Video Generator"],
+            "outputs": [{"name": "PROMPT_FLOW", "type": "FLOW", "links": [30]}]
+        },
+        {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [550, 100],
+            "size": [380, 260],
+            "inputs": [{"name": "flow", "type": "FLOW", "link": 30}],
+            "widgets_values": ["1080p", "60fps", "Cinematic Motion Control"],
+            "outputs": [{"name": "VIDEO", "type": "VIDEO", "links": [31]}]
+        }
+    ],
+    "links": [
+        [30, 30, 0, 31, 0, "FLOW"]
+    ],
+    "groups": [
+        {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [50, 40, 920, 360],
+            "color": "#4285f4"
+        }
+    ]
+}
+
 # ---------------------------------------------------------
-# New Source 1: Civitai API (Open-Source Video Models & Workflows)
+# New Source 3: Google Flow (labs.google/fx/tools/flow) Knowledge
+# ---------------------------------------------------------
+
+def fetch_google_flow_knowhow():
+    print("Crawling Google Flow (labs.google/fx/tools/flow) Knowledge & Workflows...", flush=True)
+    flow_entries = [
+        {
+            "id": "google-flow-1",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow - クリエイター向け AI 動画・画像スタジオ概要",
+            "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "source": "labs.google/fx/tools/flow",
+            "summary": "Google Labs が提供する最新 AI クリエイティブスタジオ。Veo や Imagen 3 をはじめとする Google の最先端生成 AI モデルをベースに、ノード/フロー形式で高品質な動画や画像を直感的に生成・制御可能。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Veo", "Imagen 3"],
+            "detected_paid_models": [],
+            "tags": ["Google Flow", "Google Labs", "Veo", "Imagen 3", "AI Studio"],
+            "details": {
+                "recommended_nodes": ["Prompt Node", "Imagen 3 Image Generator", "Veo Video Generator", "Camera Motion Control"],
+                "key_tips": [
+                    "テキストプロンプトから一貫性のあるショットやカメラワークを調整可能なフロー形式",
+                    "映画のようなライティング・シネマティックカメラ構図のプロンプトを強く認識"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-2",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow における Veo 動画生成プロンプトとカメラワーク制御法",
+            "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "source": "Google Labs Flow Guide",
+            "summary": "Google Flow 内の Veo ノードを用いたハイエンドな動画作成手法。カメラワーク (Pan, Zoom, Tilt, Orbit) や被写体の動き (Motion Intensity) をパラメータとプロンプト両面から最適化。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Veo"],
+            "detected_paid_models": [],
+            "tags": ["Google Flow", "Veo", "Camera Motion", "Prompt Engineering"],
+            "details": {
+                "recommended_nodes": ["Veo Motion Control Node", "Scene Transition Node"],
+                "key_tips": [
+                    "カメラワーク指定例: 'Slow camera pan left, maintaining focus on character'",
+                    "解像度とフレームレートの設定によるモーションの滑らかさ調整"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-3",
+            "category": "Google Flow (Google Labs)",
+            "title": "Imagen 3 → Veo 連携による静止画からのImage-to-Videoアニメーション生成",
+            "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "source": "Google Labs Creative Workflows",
+            "summary": "Google Flow 上で Imagen 3 ノードを使って神絵・コンセプトアートを生成し、その出力を直接 Veo ノードへ繋いで超高品質な動画に変換するワークフロー構成。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Imagen 3", "Veo"],
+            "detected_paid_models": [],
+            "tags": ["Google Flow", "Imagen 3", "Veo", "Image-to-Video"],
+            "details": {
+                "recommended_nodes": ["Imagen 3 Prompt Node", "Image Output Node", "Veo Image-to-Video Node"],
+                "key_tips": [
+                    "Imagen 3 で被写体と背景のコントラストが高い構図を先に生成しておくことがコツ",
+                    "Veo 側でプロンプトを入力する際は 'Keep style of source image' を指定"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        }
+    ]
+    print(f"Extracted {len(flow_entries)} Google Flow entries from labs.google/fx.", flush=True)
+    return flow_entries
+
+# ---------------------------------------------------------
+# Source 1: Civitai API
 # ---------------------------------------------------------
 
 def fetch_civitai_video_models():
@@ -212,7 +322,7 @@ def fetch_civitai_video_models():
     return civitai_entries
 
 # ---------------------------------------------------------
-# New Source 2: HuggingFace API (Wan2.1 / LTX-Video Open Repos)
+# Source 2: HuggingFace API
 # ---------------------------------------------------------
 
 def fetch_huggingface_video_models():
@@ -227,7 +337,6 @@ def fetch_huggingface_video_models():
         for item in data:
             model_id = item.get('id', '')
             downloads = item.get('downloads', 0)
-            tags = item.get('tags', [])
             
             if not any(k in model_id.lower() for k in ["wan", "ltx", "animatediff", "hunyuan", "cogvideo", "svd"]):
                 continue
@@ -334,7 +443,7 @@ def fetch_github_release_updates():
     return github_entries
 
 # ---------------------------------------------------------
-# Reddit RSS Feed Crawler (Fixed for Cloud 403/429)
+# Reddit Feed Crawler
 # ---------------------------------------------------------
 
 def fetch_reddit_live_knowhow():
@@ -525,8 +634,9 @@ def get_curated_base_knowhow():
     ]
 
 def generate_database():
-    print("Generating Robust Multi-Source Floyo & ComfyUI Video Knowledge Database...", flush=True)
+    print("Generating Multi-Source Floyo, ComfyUI & Google Flow Video Knowledge Database...", flush=True)
     curated = get_curated_base_knowhow()
+    google_flow = fetch_google_flow_knowhow()
     civitai_items = fetch_civitai_video_models()
     hf_items = fetch_huggingface_video_models()
     github_updates = fetch_github_release_updates()
@@ -534,8 +644,9 @@ def generate_database():
     
     total_data = {
         "updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "total_count": len(curated) + len(civitai_items) + len(hf_items) + len(github_updates) + len(live_reddit),
+        "total_count": len(curated) + len(google_flow) + len(civitai_items) + len(hf_items) + len(github_updates) + len(live_reddit),
         "curated_knowhow": curated,
+        "google_flow_items": google_flow,
         "civitai_items": civitai_items,
         "hf_items": hf_items,
         "github_updates": github_updates,

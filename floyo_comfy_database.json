@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-07-28 13:47:56",
-  "total_count": 4,
+  "updated_at": "2026-07-28 14:38:43",
+  "total_count": 7,
   "curated_knowhow": [
     {
       "id": "base-1",
@@ -434,78 +434,45 @@
         "version": 0.4,
         "nodes": [
           {
-            "id": 20,
-            "type": "LoadImage",
+            "id": 10,
+            "type": "WanVideoTextEncode",
             "pos": [
               100,
               100
             ],
             "size": [
-              300,
-              300
-            ],
-            "widgets_values": [
-              "character_reference_sheet.png",
-              "image"
+              420,
+              220
             ],
             "outputs": [
               {
-                "name": "IMAGE",
-                "type": "IMAGE",
+                "name": "CONDITIONING",
+                "type": "CONDITIONING",
                 "links": [
-                  20
-                ]
-              }
-            ]
-          },
-          {
-            "id": 21,
-            "type": "IPAdapterApply",
-            "pos": [
-              450,
-              100
-            ],
-            "size": [
-              320,
-              240
-            ],
-            "inputs": [
-              {
-                "name": "image",
-                "type": "IMAGE",
-                "link": 20
-              }
-            ],
-            "outputs": [
-              {
-                "name": "MODEL",
-                "type": "MODEL",
-                "links": [
-                  21
+                  10
                 ]
               }
             ],
             "widgets_values": [
-              0.85,
-              "STYLE_AND_STRUCTURE"
+              "anime scene, camera pans left slowly, detailed background, cherry blossoms falling, high dynamic range"
             ]
           },
           {
-            "id": 22,
-            "type": "LTXVideoSampler",
+            "id": 11,
+            "type": "WanVideoSampler",
             "pos": [
-              820,
+              560,
               100
             ],
             "size": [
-              350,
-              300
+              360,
+              320
             ],
             "inputs": [
               {
-                "name": "model",
-                "type": "MODEL",
-                "link": 21
+                "name": "positive",
+                "type": "CONDITIONING",
+                "link": 10
               }
             ],
             "outputs": [
@@ -513,40 +480,76 @@
                 "name": "LATENT",
                 "type": "LATENT",
                 "links": [
-                  22
+                  11
                 ]
               }
+            ],
+            "widgets_values": [
+              123456789,
+              "fixed",
+              30,
+              6.0,
+              "wan_2.1_14b.safetensors",
+              81,
+              16
+            ]
+          },
+          {
+            "id": 12,
+            "type": "VHS_VideoCombine",
+            "pos": [
+              960,
+              100
+            ],
+            "size": [
+              300,
+              250
+            ],
+            "inputs": [
+              {
+                "name": "images",
+                "type": "IMAGE",
+                "link": 11
+              }
+            ],
+            "widgets_values": [
+              16,
+              0,
+              "wan_video_result",
+              "video/h264-mp4",
+              false,
+              true
             ]
           }
         ],
         "links": [
           [
-            20,
-            20,
+            10,
+            10,
             0,
-            21,
+            11,
             0,
-            "IMAGE"
+            "CONDITIONING"
           ],
           [
-            21,
-            21,
+            11,
+            11,
             0,
-            22,
+            12,
             0,
-            "MODEL"
+            "IMAGE"
           ]
         ],
         "groups": [
           {
-            "title": "Character Consistency & Cut Video Subgraph",
+            "title": "Wan 2.1 High Quality Open T2V Block",
             "bounding": [
               50,
               40,
-              1150,
-              400
+              1250,
+              420
             ],
-            "color": "#06b6d4"
+            "color": "#6366f1"
           }
         ]
       }
@@ -783,6 +786,364 @@
       }
     }
   ],
+  "google_flow_items": [
+    {
+      "id": "google-flow-1",
+      "category": "Google Flow (Google Labs)",
+      "title": "Google Flow - クリエイター向け AI 動画・画像スタジオ概要",
+      "updated": "2026-07-28",
+      "source": "labs.google/fx/tools/flow",
+      "summary": "Google Labs が提供する最新 AI クリエイティブスタジオ。Veo や Imagen 3 をはじめとする Google の最先端生成 AI モデルをベースに、ノード/フロー形式で高品質な動画や画像を直感的に生成・制御可能。",
+      "url": "https://labs.google/fx/ja/tools/flow",
+      "cost_badge": "Google Labs (Free Trial)",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Veo",
+        "Imagen 3"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Google Flow",
+        "Google Labs",
+        "Veo",
+        "Imagen 3",
+        "AI Studio"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Prompt Node",
+          "Imagen 3 Image Generator",
+          "Veo Video Generator",
+          "Camera Motion Control"
+        ],
+        "key_tips": [
+          "テキストプロンプトから一貫性のあるショットやカメラワークを調整可能なフロー形式",
+          "映画のようなライティング・シネマティックカメラ構図のプロンプトを強く認識"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              400,
+              180
+            ],
+            "widgets_values": [
+              "Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed",
+              "Veo 2 Video Generator"
+            ],
+            "outputs": [
+              {
+                "name": "PROMPT_FLOW",
+                "type": "FLOW",
+                "links": [
+                  30
+                ]
+              }
+            ]
+          },
+          {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [
+              550,
+              100
+            ],
+            "size": [
+              380,
+              260
+            ],
+            "inputs": [
+              {
+                "name": "flow",
+                "type": "FLOW",
+                "link": 30
+              }
+            ],
+            "widgets_values": [
+              "1080p",
+              "60fps",
+              "Cinematic Motion Control"
+            ],
+            "outputs": [
+              {
+                "name": "VIDEO",
+                "type": "VIDEO",
+                "links": [
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            30,
+            30,
+            0,
+            31,
+            0,
+            "FLOW"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [
+              50,
+              40,
+              920,
+              360
+            ],
+            "color": "#4285f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "google-flow-2",
+      "category": "Google Flow (Google Labs)",
+      "title": "Google Flow における Veo 動画生成プロンプトとカメラワーク制御法",
+      "updated": "2026-07-28",
+      "source": "Google Labs Flow Guide",
+      "summary": "Google Flow 内の Veo ノードを用いたハイエンドな動画作成手法。カメラワーク (Pan, Zoom, Tilt, Orbit) や被写体の動き (Motion Intensity) をパラメータとプロンプト両面から最適化。",
+      "url": "https://labs.google/fx/ja/tools/flow",
+      "cost_badge": "Google Labs (Free Trial)",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Veo"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Google Flow",
+        "Veo",
+        "Camera Motion",
+        "Prompt Engineering"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Veo Motion Control Node",
+          "Scene Transition Node"
+        ],
+        "key_tips": [
+          "カメラワーク指定例: 'Slow camera pan left, maintaining focus on character'",
+          "解像度とフレームレートの設定によるモーションの滑らかさ調整"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              400,
+              180
+            ],
+            "widgets_values": [
+              "Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed",
+              "Veo 2 Video Generator"
+            ],
+            "outputs": [
+              {
+                "name": "PROMPT_FLOW",
+                "type": "FLOW",
+                "links": [
+                  30
+                ]
+              }
+            ]
+          },
+          {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [
+              550,
+              100
+            ],
+            "size": [
+              380,
+              260
+            ],
+            "inputs": [
+              {
+                "name": "flow",
+                "type": "FLOW",
+                "link": 30
+              }
+            ],
+            "widgets_values": [
+              "1080p",
+              "60fps",
+              "Cinematic Motion Control"
+            ],
+            "outputs": [
+              {
+                "name": "VIDEO",
+                "type": "VIDEO",
+                "links": [
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            30,
+            30,
+            0,
+            31,
+            0,
+            "FLOW"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [
+              50,
+              40,
+              920,
+              360
+            ],
+            "color": "#4285f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "google-flow-3",
+      "category": "Google Flow (Google Labs)",
+      "title": "Imagen 3 → Veo 連携による静止画からのImage-to-Videoアニメーション生成",
+      "updated": "2026-07-28",
+      "source": "Google Labs Creative Workflows",
+      "summary": "Google Flow 上で Imagen 3 ノードを使って神絵・コンセプトアートを生成し、その出力を直接 Veo ノードへ繋いで超高品質な動画に変換するワークフロー構成。",
+      "url": "https://labs.google/fx/ja/tools/flow",
+      "cost_badge": "Google Labs (Free Trial)",
+      "is_free_os": true,
+      "detected_free_models": [
+        "Imagen 3",
+        "Veo"
+      ],
+      "detected_paid_models": [],
+      "tags": [
+        "Google Flow",
+        "Imagen 3",
+        "Veo",
+        "Image-to-Video"
+      ],
+      "details": {
+        "recommended_nodes": [
+          "Imagen 3 Prompt Node",
+          "Image Output Node",
+          "Veo Image-to-Video Node"
+        ],
+        "key_tips": [
+          "Imagen 3 で被写体と背景のコントラストが高い構図を先に生成しておくことがコツ",
+          "Veo 側でプロンプトを入力する際は 'Keep style of source image' を指定"
+        ]
+      },
+      "workflow_json": {
+        "version": 0.4,
+        "nodes": [
+          {
+            "id": 30,
+            "type": "GoogleFlowPromptNode",
+            "pos": [
+              100,
+              100
+            ],
+            "size": [
+              400,
+              180
+            ],
+            "widgets_values": [
+              "Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed",
+              "Veo 2 Video Generator"
+            ],
+            "outputs": [
+              {
+                "name": "PROMPT_FLOW",
+                "type": "FLOW",
+                "links": [
+                  30
+                ]
+              }
+            ]
+          },
+          {
+            "id": 31,
+            "type": "GoogleFlowVideoNode",
+            "pos": [
+              550,
+              100
+            ],
+            "size": [
+              380,
+              260
+            ],
+            "inputs": [
+              {
+                "name": "flow",
+                "type": "FLOW",
+                "link": 30
+              }
+            ],
+            "widgets_values": [
+              "1080p",
+              "60fps",
+              "Cinematic Motion Control"
+            ],
+            "outputs": [
+              {
+                "name": "VIDEO",
+                "type": "VIDEO",
+                "links": [
+                  31
+                ]
+              }
+            ]
+          }
+        ],
+        "links": [
+          [
+            30,
+            30,
+            0,
+            31,
+            0,
+            "FLOW"
+          ]
+        ],
+        "groups": [
+          {
+            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "bounding": [
+              50,
+              40,
+              920,
+              360
+            ],
+            "color": "#4285f4"
+          }
+        ]
+      }
+    }
+  ],
+  "civitai_items": [],
+  "hf_items": [],
   "github_updates": [],
   "reddit_live_topics": []
 }
