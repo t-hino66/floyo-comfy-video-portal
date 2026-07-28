@@ -164,28 +164,31 @@ TEMPLATE_GOOGLE_FLOW_CANVAS = {
     "nodes": [
         {
             "id": 30,
-            "type": "GoogleFlowPromptNode",
+            "type": "GoogleFlowAgentNode",
             "pos": [100, 100],
-            "size": [400, 180],
-            "widgets_values": ["Cinematic camera movement, sweeping shot of futuristic city sunset, 4k ultra detailed", "Veo 2 Video Generator"],
-            "outputs": [{"name": "PROMPT_FLOW", "type": "FLOW", "links": [30]}]
+            "size": [420, 200],
+            "widgets_values": [
+                "Role: Cinematic Anime Director Agent",
+                "System Prompt: You automatically optimize camera motion, lighting, and character consistency for Veo 2 video generation."
+            ],
+            "outputs": [{"name": "AGENT_CONFIG", "type": "AGENT", "links": [30]}]
         },
         {
             "id": 31,
             "type": "GoogleFlowVideoNode",
-            "pos": [550, 100],
+            "pos": [560, 100],
             "size": [380, 260],
-            "inputs": [{"name": "flow", "type": "FLOW", "link": 30}],
+            "inputs": [{"name": "agent", "type": "AGENT", "link": 30}],
             "widgets_values": ["1080p", "60fps", "Cinematic Motion Control"],
             "outputs": [{"name": "VIDEO", "type": "VIDEO", "links": [31]}]
         }
     ],
     "links": [
-        [30, 30, 0, 31, 0, "FLOW"]
+        [30, 30, 0, 31, 0, "AGENT"]
     ],
     "groups": [
         {
-            "title": "Google Flow (Google Labs FX) Studio Workflow",
+            "title": "Google Flow Custom AI Agent & Video Generation Flow",
             "bounding": [50, 40, 920, 360],
             "color": "#4285f4"
         }
@@ -193,14 +196,77 @@ TEMPLATE_GOOGLE_FLOW_CANVAS = {
 }
 
 # ---------------------------------------------------------
-# Source 3: Google Flow (labs.google/fx/tools/flow) Knowledge (Expanded to 10 Guides)
+# Source 3: Google Flow (labs.google/fx/tools/flow) Knowledge (Including Agent Configs)
 # ---------------------------------------------------------
 
 def fetch_google_flow_knowhow():
-    print("Crawling & Compiling Google Flow (labs.google/fx/tools/flow) Rich Knowledge & Use Cases...", flush=True)
+    print("Crawling & Compiling Google Flow (labs.google/fx/tools/flow) Knowledge & Agent Configurations...", flush=True)
     today = datetime.datetime.now().strftime("%Y-%m-%d")
     
     flow_entries = [
+        {
+            "id": "google-flow-agent-1",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow エージェント設定ガイド - カスタムAIディレクターの構築法",
+            "updated": today,
+            "source": "labs.google/fx/tools/flow",
+            "summary": "Google Flow 内で『カスタムAIエージェント (Flow Agent)』を定義・設定する基本ガイド。システムプロンプト (Role / System Instructions) に監督スタイルや画風ルールを設定し、動画プロンプトの自動推敲とVeoモデルパラメータの最適調整を自律化。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Veo", "Imagen 3", "Google Flow"],
+            "tags": ["Google Flow", "Agent Configuration", "System Prompt", "AI Director"],
+            "details": {
+                "recommended_nodes": ["Custom Agent Node", "Role Instruction Block", "Veo Model Router"],
+                "key_tips": [
+                    "システムプロンプト例: 'You are an expert anime director. Automatically translate user prompts into detailed cinematic camera shots with 60fps motion.'",
+                    "エージェントに作画破綻防止ネガティブ指示 (No flickering, no distortion) を事前登録"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-agent-2",
+            "category": "Google Flow (Google Labs)",
+            "title": "キャラクター一貫性エージェント (Context Memory Agent) の設定パラメータ",
+            "updated": today,
+            "source": "Google Labs Agent Architecture",
+            "summary": "複数カット動画制作時に、エージェントのコンテキストメモリ機能(Context Memory)を設定する手法。前のカットで出力したキャラデザイン・髪型・衣装を保持し、後続のVeo動画ノードへ受け渡す。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Veo", "Google Flow"],
+            "tags": ["Google Flow", "Agent Memory", "Character Consistency", "Context Window"],
+            "details": {
+                "recommended_nodes": ["Character Context Memory Agent", "Multi-cut State Keeper"],
+                "key_tips": [
+                    "Memory Weight: 0.85 を設定して前カットの顔・衣装を継承",
+                    "エージェントの指示文に 'Lock character features (eye color, hair style, costume) across all cuts' を追加"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
+        {
+            "id": "google-flow-agent-3",
+            "category": "Google Flow (Google Labs)",
+            "title": "Google Flow モデル自動判定・ルーティングエージェント (Auto Model Router Agent)",
+            "updated": today,
+            "source": "Google Labs Flow Automation",
+            "summary": "ユーザーの入力内容に応じて、静止画生成(Imagen 3)が適しているか、動画生成(Veo)が適しているかをAIエージェントが自動判別し、最適ノードへ分岐・実行するスマートエージェントフロー。",
+            "url": "https://labs.google/fx/ja/tools/flow",
+            "cost_badge": "Google Labs (Free Trial)",
+            "is_free_os": True,
+            "detected_free_models": ["Imagen 3", "Veo", "Google Flow"],
+            "tags": ["Google Flow", "Model Router", "Automation Agent", "Multi-modal"],
+            "details": {
+                "recommended_nodes": ["Intent Classification Agent", "Imagen3 Branch", "Veo Branch"],
+                "key_tips": [
+                    "動きの動詞が含まれる場合は自動で Veo 動画生成フローを起動",
+                    "静止したイラスト・背景指示の場合は Imagen 3 で高解像度化してからI2Vへバトンタッチ"
+                ]
+            },
+            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
+        },
         {
             "id": "google-flow-1",
             "category": "Google Flow (Google Labs)",
@@ -290,50 +356,6 @@ def fetch_google_flow_knowhow():
             "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
         },
         {
-            "id": "google-flow-5",
-            "category": "Google Flow (Google Labs)",
-            "title": "Google Flow でシームレスループ動画・SNS用縦型ショート動画の作成手法",
-            "updated": today,
-            "source": "Google FX Tips & Tricks",
-            "summary": "TikTokやYouTubeショート向けの縦型アスペクト比(9:16)設定と、フレームの最初と最後を滑らかにループさせる動きのモーション補間ノードテクニック。",
-            "url": "https://labs.google/fx/ja/tools/flow",
-            "cost_badge": "Google Labs (Free Trial)",
-            "is_free_os": True,
-            "detected_free_models": ["Veo", "Google Flow"],
-            "detected_paid_models": [],
-            "tags": ["Google Flow", "Loop Video", "Shorts", "Aspect Ratio 9:16"],
-            "details": {
-                "recommended_nodes": ["Aspect Ratio Switcher (9:16)", "Seamless Loop Sampler"],
-                "key_tips": [
-                    "アスペクト比 9:16 を選択し、中央被写体の動きを中心にフレーミング",
-                    "ループ命令: 'seamless infinite loop motion, continuous background motion'"
-                ]
-            },
-            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
-        },
-        {
-            "id": "google-flow-6",
-            "category": "Google Flow (Google Labs)",
-            "title": "Google Flow におけるカスタムスタイルトランスファーと表現コントロール",
-            "updated": today,
-            "source": "Google FX Advanced Manual",
-            "summary": "水彩画・油絵・アニメ風・実写シネマテイストなど、参照画像ノード(Reference Style Node)を組み合わせて入力動画の画風を一括変換するスタイル適用テクニック。",
-            "url": "https://labs.google/fx/ja/tools/flow",
-            "cost_badge": "Google Labs (Free Trial)",
-            "is_free_os": True,
-            "detected_free_models": ["Veo", "Imagen 3", "Google Flow"],
-            "detected_paid_models": [],
-            "tags": ["Google Flow", "Style Transfer", "Anime Style", "Cinematic"],
-            "details": {
-                "recommended_nodes": ["Style Reference Image Node", "Style Weight Control Node"],
-                "key_tips": [
-                    "スタイル強度は 0.6 〜 0.8 が破綻の少ない黄金比率",
-                    "プロンプト側でも 'in the aesthetic of watercolor painting' など補正キーを加える"
-                ]
-            },
-            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
-        },
-        {
             "id": "google-flow-7",
             "category": "Google Flow (Google Labs)",
             "title": "Google Flow と ComfyUI / Floyo ワークフローの相互連携とデータ共有",
@@ -354,31 +376,9 @@ def fetch_google_flow_knowhow():
                 ]
             },
             "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
-        },
-        {
-            "id": "google-flow-8",
-            "category": "Google Flow (Google Labs)",
-            "title": "Google Flow での物理シミュレーション風プロンプト（液体・炎・風・粒子）",
-            "updated": today,
-            "source": "Google FX VFX Showcase",
-            "summary": "Veo モデルの高度な物理エンジン理解を活かしたエフェクト動画制作。水しぶき、爆発、炎、煙、光の粒子のリアルな動きをコントロールするプロンプト事例。",
-            "url": "https://labs.google/fx/ja/tools/flow",
-            "cost_badge": "Google Labs (Free Trial)",
-            "is_free_os": True,
-            "detected_free_models": ["Veo", "Google Flow"],
-            "detected_paid_models": [],
-            "tags": ["Google Flow", "VFX Effects", "Physics Simulation", "Veo Prompts"],
-            "details": {
-                "recommended_nodes": ["VFX Dynamics Node", "Veo 2 Sampler"],
-                "key_tips": [
-                    "プロンプト例: 'Slow motion splash of liquid gold forming a dragon shape, high speed camera, 1000fps effect'",
-                    "流体・粒子の反射表現には 'volumetric lighting, refraction' を追加"
-                ]
-            },
-            "workflow_json": TEMPLATE_GOOGLE_FLOW_CANVAS
         }
     ]
-    print(f"Extracted {len(flow_entries)} rich Google Flow entries.", flush=True)
+    print(f"Extracted {len(flow_entries)} rich Google Flow entries including AI Agent configs.", flush=True)
     return flow_entries
 
 # ---------------------------------------------------------
@@ -563,7 +563,7 @@ def fetch_github_release_updates():
     return github_entries
 
 # ---------------------------------------------------------
-# Reddit Feed Crawler (With Google Flow Topic Mapping)
+# Reddit Feed Crawler
 # ---------------------------------------------------------
 
 def fetch_reddit_live_knowhow():
@@ -582,7 +582,7 @@ def fetch_reddit_live_knowhow():
     keywords = [
         "video", "i2v", "t2v", "ltx", "wan", "animatediff", "hunyuan", 
         "floyo", "workflow", "canvas", "consistency", "lipsync", "animation", "motion", "nodes",
-        "google", "flow", "veo", "imagen"
+        "google", "flow", "veo", "imagen", "agent"
     ]
     
     for url, sub_name in rss_urls:
@@ -758,7 +758,7 @@ def get_curated_base_knowhow():
     ]
 
 def generate_database():
-    print("Generating Multi-Source Floyo, ComfyUI & Google Flow Video Knowledge Database...", flush=True)
+    print("Generating Multi-Source Floyo, ComfyUI & Google Flow Video Knowledge Database with AI Agent Configs...", flush=True)
     curated = get_curated_base_knowhow()
     google_flow = fetch_google_flow_knowhow()
     civitai_items = fetch_civitai_video_models()
