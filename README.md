@@ -1,6 +1,8 @@
 # Floyo & ComfyUI Video Workflows Portal
 
-Floyo UI および ComfyUI での動画制作ワークフロー、最新オープンソース動画モデル情報、Redditコミュニティのリアルタイムノウハウを集約・可視化する GitHub Pages 対応のポータルWebサイトです。
+Website: https://t-hino66.github.io/floyo-comfy-video-portal
+
+Floyo UI および ComfyUI での動画制作ワークフロー、最新オープンソース動画モデル情報、Redditコミュニティのリアルタイムノウハウを集約・可視化��[...]
 
 ## 🌟 主な特徴
 
