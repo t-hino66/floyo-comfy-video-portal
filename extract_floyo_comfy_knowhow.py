@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 import re
 import datetime
 import ssl
+import time
 
 DATABASE_FILE = "floyo_comfy_database.json"
 
@@ -18,14 +19,17 @@ PAID_PARTNER_MODELS = [
 ]
 
 def http_get_raw(url):
+    # Custom headers with standard browser User-Agent to prevent Reddit 429 Too Many Requests
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 FloyoVideoHubBot/1.0"
+        }
     )
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
-    with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
+    with urllib.request.urlopen(req, context=ctx, timeout=12) as resp:
         return resp.read()
 
 def classify_cost_and_models(text):
@@ -199,13 +203,10 @@ TEMPLATE_CHARACTER_CONSISTENCY_CANVAS = {
 }
 
 # ---------------------------------------------------------
-# New Crawlers: GitHub Releases RSS (Major Video Nodes)
+# GitHub Releases Atom Feed Crawler
 # ---------------------------------------------------------
 
 def fetch_github_release_updates():
-    """
-    Crawls official GitHub Release Atom feeds for major ComfyUI & Video nodes.
-    """
     print("Crawling GitHub Releases for ComfyUI Video Node updates...", flush=True)
     github_entries = []
     
@@ -213,17 +214,20 @@ def fetch_github_release_updates():
         ("Kosinkadink/ComfyUI-VideoHelperSuite", "VideoHelperSuite (Video Output/Combine)"),
         ("Kosinkadink/ComfyUI-AnimateDiff-Evolved", "AnimateDiff Evolved (Motion Animation)"),
         ("Lightricks/LTX-Video", "LTX-Video Official Model Release"),
-        ("Wan-Video/Wan2.1", "Wan 2.1 Official Video Model")
+        ("Wan-Video/Wan2.1", "Wan 2.1 Official Video Model"),
+        ("cubiq/ComfyUI_IPAdapter_plus", "IP-Adapter Plus (Character Consistency)"),
+        ("comfyanonymous/ComfyUI", "ComfyUI Official Core Framework")
     ]
     
     for repo_path, repo_name in repos:
         feed_url = f"https://github.com/{repo_path}/releases.atom"
         try:
+            time.sleep(0.5) # Gentle rate limiting
             xml_data = http_get_raw(feed_url)
             root = ET.fromstring(xml_data)
             entries = root.findall('{http://www.w3.org/2005/Atom}entry')
             
-            for entry in entries[:2]: # Get latest 2 releases per repo
+            for entry in entries[:4]: # Get up to 4 releases per repo
                 title_elem = entry.find('{http://www.w3.org/2005/Atom}title')
                 link_elem = entry.find('{http://www.w3.org/2005/Atom}link')
                 updated_elem = entry.find('{http://www.w3.org/2005/Atom}updated')
@@ -268,16 +272,21 @@ def fetch_github_release_updates():
     print(f"Extracted {len(github_entries)} GitHub release entries.", flush=True)
     return github_entries
 
+# ---------------------------------------------------------
+# Reddit RSS & JSON API Crawler (With Rate-Limit Handling)
+# ---------------------------------------------------------
+
 def fetch_reddit_live_knowhow():
-    print("Crawling live Reddit RSS feeds for Floyo & ComfyUI Video Workflows...", flush=True)
+    print("Crawling live Reddit endpoints for Floyo & ComfyUI Video Workflows...", flush=True)
     reddit_entries = []
     
-    rss_urls = [
-        "https://www.reddit.com/r/comfyui/hot.rss",
-        "https://www.reddit.com/r/comfyui/new.rss",
-        "https://www.reddit.com/r/Floyo/hot.rss",
-        "https://www.reddit.com/r/StableDiffusion/hot.rss",
-        "https://www.reddit.com/r/AIAnime/hot.rss"
+    # Using JSON endpoints with rate limit pause
+    subreddits = [
+        ("comfyui", "hot"),
+        ("comfyui", "new"),
+        ("Floyo", "hot"),
+        ("StableDiffusion", "hot"),
+        ("AIAnime", "hot")
     ]
     
     seen_links = set()
@@ -286,37 +295,33 @@ def fetch_reddit_live_knowhow():
         "floyo", "workflow", "canvas", "consistency", "lipsync", "animation", "motion", "nodes"
     ]
     
-    for url in rss_urls:
+    for sub, sort in subreddits:
+        json_url = f"https://www.reddit.com/r/{sub}/{sort}.json?limit=25"
         try:
-            xml_data = http_get_raw(url)
-            root = ET.fromstring(xml_data)
-            entries = root.findall('{http://www.w3.org/2005/Atom}entry')
+            time.sleep(1.5) # Sleep 1.5s to completely avoid HTTP 429 Too Many Requests
+            raw_data = http_get_raw(json_url)
+            data = json.loads(raw_data.decode('utf-8'))
+            posts = data.get('data', {}).get('children', [])
             
-            for entry in entries:
-                title_elem = entry.find('{http://www.w3.org/2005/Atom}title')
-                link_elem = entry.find('{http://www.w3.org/2005/Atom}link')
-                updated_elem = entry.find('{http://www.w3.org/2005/Atom}updated')
-                content_elem = entry.find('{http://www.w3.org/2005/Atom}content')
-                
-                title = title_elem.text if title_elem is not None else ""
-                link = link_elem.attrib.get('href', '') if link_elem is not None else ""
-                updated = updated_elem.text if updated_elem is not None else datetime.datetime.now().strftime("%Y-%m-%d")
-                content_raw = content_elem.text if content_elem is not None else ""
+            for post in posts:
+                pdata = post.get('data', {})
+                title = pdata.get('title', '')
+                permalink = pdata.get('permalink', '')
+                link = f"https://www.reddit.com{permalink}" if permalink else pdata.get('url', '')
+                created_utc = pdata.get('created_utc', 0)
+                selftext = pdata.get('selftext', '')
                 
                 if not link or link in seen_links:
                     continue
                     
-                clean_content = re.sub(r'<[^>]+>', ' ', content_raw).strip()
-                clean_content = re.sub(r'\s+', ' ', clean_content)
-                
-                full_text = (title + " " + clean_content).lower()
+                full_text = (title + " " + selftext).lower()
                 is_relevant = any(kw in full_text for kw in keywords)
                 
                 if is_relevant:
                     seen_links.add(link)
-                    date_str = updated.split('T')[0] if 'T' in updated else updated[:10]
+                    date_str = datetime.datetime.fromtimestamp(created_utc).strftime("%Y-%m-%d") if created_utc else datetime.datetime.now().strftime("%Y-%m-%d")
                     
-                    cost_info = classify_cost_and_models(title + " " + clean_content)
+                    cost_info = classify_cost_and_models(title + " " + selftext)
                     
                     category = "Reddit: リアルタイム話題"
                     if "floyo" in full_text or "canvas" in full_text:
@@ -328,37 +333,29 @@ def fetch_reddit_live_knowhow():
                     elif "i2v" in full_text or "t2v" in full_text or "video" in full_text:
                         category = "ComfyUI 動画生成ノード・テクニック"
                         
-                    summary = clean_content[:200] + "..." if len(clean_content) > 200 else clean_content
-                    if not summary or ("submitted by" in summary and len(summary) < 60):
-                        summary = f"Reddit コミュニティでの動画制作議論。ワークフローや最新ノードに関する投稿です。"
-                        
-                    sub_name = "/r/comfyui"
-                    if "/r/Floyo" in url:
-                        sub_name = "/r/Floyo"
-                    elif "/r/StableDiffusion" in url:
-                        sub_name = "/r/StableDiffusion"
-                    elif "/r/AIAnime" in url:
-                        sub_name = "/r/AIAnime"
+                    clean_summary = selftext[:200].strip() if selftext else f"Reddit /r/{sub} コミュニティでの動画制作議論。ワークフローや最新ノードに関する投稿です。"
+                    if len(selftext) > 200:
+                        clean_summary += "..."
 
                     workflow_template = TEMPLATE_LTX_23_CANVAS if "ltx" in full_text else (TEMPLATE_WAN_21_CANVAS if "wan" in full_text else TEMPLATE_LTX_23_CANVAS)
 
                     reddit_entries.append({
                         "id": f"reddit-{len(reddit_entries)+1}",
                         "category": category,
-                        "title": f"[{sub_name}] {title}",
+                        "title": f"[/r/{sub}] {title}",
                         "updated": date_str,
-                        "source": f"Reddit {sub_name}",
-                        "summary": summary,
+                        "source": f"Reddit /r/{sub}",
+                        "summary": clean_summary,
                         "url": link,
                         "cost_badge": cost_info["cost_badge"],
                         "is_free_os": cost_info["is_free_os"],
                         "detected_free_models": cost_info["free_models"],
                         "detected_paid_models": cost_info["paid_models"],
-                        "tags": ["Reddit", sub_name.replace("/r/", ""), cost_info["cost_badge"]] + cost_info["free_models"] + cost_info["paid_models"],
+                        "tags": ["Reddit", sub, cost_info["cost_badge"]] + cost_info["free_models"] + cost_info["paid_models"],
                         "workflow_json": workflow_template
                     })
         except Exception as e:
-            print(f"Failed to crawl RSS {url}: {e}", flush=True)
+            print(f"Failed to crawl Reddit /r/{sub}: {e}", flush=True)
 
     print(f"Extracted {len(reddit_entries)} live Reddit video workflow entries.", flush=True)
     return reddit_entries
@@ -464,7 +461,7 @@ def get_curated_base_knowhow():
     ]
 
 def generate_database():
-    print("Generating Multi-Source Floyo & ComfyUI Video Knowledge Database...", flush=True)
+    print("Generating Robust Multi-Source Floyo & ComfyUI Video Knowledge Database...", flush=True)
     curated = get_curated_base_knowhow()
     github_updates = fetch_github_release_updates()
     live_reddit = fetch_reddit_live_knowhow()
