@@ -19,11 +19,10 @@ PAID_PARTNER_MODELS = [
 ]
 
 def http_get_raw(url):
-    # Custom headers with standard browser User-Agent to prevent Reddit 429 Too Many Requests
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 FloyoVideoHubBot/1.0"
+            "User-Agent": "floyo-video-hub:v1.0.0 (by /u/floyo_bot_user)"
         }
     )
     ctx = ssl.create_default_context()
@@ -52,7 +51,7 @@ def classify_cost_and_models(text):
     }
 
 # ---------------------------------------------------------
-# Verified Sample JSON Templates (Floyo Canvas)
+# Templates
 # ---------------------------------------------------------
 
 TEMPLATE_LTX_23_CANVAS = {
@@ -160,47 +159,109 @@ TEMPLATE_WAN_21_CANVAS = {
     ]
 }
 
-TEMPLATE_CHARACTER_CONSISTENCY_CANVAS = {
-    "version": 0.4,
-    "nodes": [
-        {
-            "id": 20,
-            "type": "LoadImage",
-            "pos": [100, 100],
-            "size": [300, 300],
-            "widgets_values": ["character_reference_sheet.png", "image"],
-            "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [20]}]
-        },
-        {
-            "id": 21,
-            "type": "IPAdapterApply",
-            "pos": [450, 100],
-            "size": [320, 240],
-            "inputs": [{"name": "image", "type": "IMAGE", "link": 20}],
-            "outputs": [{"name": "MODEL", "type": "MODEL", "links": [21]}],
-            "widgets_values": [0.85, "STYLE_AND_STRUCTURE"]
-        },
-        {
-            "id": 22,
-            "type": "LTXVideoSampler",
-            "pos": [820, 100],
-            "size": [350, 300],
-            "inputs": [{"name": "model", "type": "MODEL", "link": 21}],
-            "outputs": [{"name": "LATENT", "type": "LATENT", "links": [22]}]
-        }
-    ],
-    "links": [
-        [20, 20, 0, 21, 0, "IMAGE"],
-        [21, 21, 0, 22, 0, "MODEL"]
-    ],
-    "groups": [
-        {
-            "title": "Character Consistency & Cut Video Subgraph",
-            "bounding": [50, 40, 1150, 400],
-            "color": "#06b6d4"
-        }
-    ]
-}
+# ---------------------------------------------------------
+# New Source 1: Civitai API (Open-Source Video Models & Workflows)
+# ---------------------------------------------------------
+
+def fetch_civitai_video_models():
+    print("Crawling Civitai API for Open-Source Video Models & Motion LoRAs...", flush=True)
+    civitai_entries = []
+    
+    url = "https://civitai.com/api/v1/models?types=MotionModule&limit=10"
+    try:
+        raw_data = http_get_raw(url)
+        data = json.loads(raw_data.decode('utf-8'))
+        items = data.get('items', [])
+        
+        for item in items:
+            name = item.get('name', '')
+            model_id = item.get('id', '')
+            desc = item.get('description', '')
+            clean_desc = re.sub(r'<[^>]+>', ' ', desc).strip() if desc else "Civitai 上の動画モーションモジュール・LoRAモデル"
+            tags = item.get('tags', [])
+            
+            link = f"https://civitai.com/models/{model_id}"
+            cost_info = classify_cost_and_models(name + " " + clean_desc)
+            
+            civitai_entries.append({
+                "id": f"civitai-{len(civitai_entries)+1}",
+                "category": "Civitai 動画モデル・Motion LoRA",
+                "title": f"[Civitai] {name}",
+                "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
+                "source": "Civitai API (Open Models)",
+                "summary": clean_desc[:220] + "..." if len(clean_desc) > 220 else clean_desc,
+                "url": link,
+                "cost_badge": "Free / Open-Source",
+                "is_free_os": True,
+                "detected_free_models": ["AnimateDiff"] + cost_info["free_models"],
+                "detected_paid_models": [],
+                "tags": ["Civitai", "Motion LoRA", "Open-Source"] + tags[:3],
+                "details": {
+                    "recommended_nodes": ["AnimateDiffLoader", "ApplyAnimateDiffModel"],
+                    "key_tips": [
+                        f"CivitaiモデルID: {model_id}",
+                        "ComfyUI / Floyo の AnimateDiff ノードブロックに直接ロードして使用可能です。"
+                    ]
+                },
+                "workflow_json": TEMPLATE_WAN_21_CANVAS
+            })
+    except Exception as e:
+        print(f"Failed to crawl Civitai API: {e}", flush=True)
+
+    print(f"Extracted {len(civitai_entries)} Civitai video model entries.", flush=True)
+    return civitai_entries
+
+# ---------------------------------------------------------
+# New Source 2: HuggingFace API (Wan2.1 / LTX-Video Open Repos)
+# ---------------------------------------------------------
+
+def fetch_huggingface_video_models():
+    print("Crawling HuggingFace API for Open Video Models & Checkpoints...", flush=True)
+    hf_entries = []
+    
+    url = "https://huggingface.co/api/models?search=video&sort=downloads&direction=-1&limit=10"
+    try:
+        raw_data = http_get_raw(url)
+        data = json.loads(raw_data.decode('utf-8'))
+        
+        for item in data:
+            model_id = item.get('id', '')
+            downloads = item.get('downloads', 0)
+            tags = item.get('tags', [])
+            
+            if not any(k in model_id.lower() for k in ["wan", "ltx", "animatediff", "hunyuan", "cogvideo", "svd"]):
+                continue
+                
+            link = f"https://huggingface.co/{model_id}"
+            cost_info = classify_cost_and_models(model_id)
+            
+            hf_entries.append({
+                "id": f"hf-{len(hf_entries)+1}",
+                "category": "HuggingFace 動画モデル・チェックポイント",
+                "title": f"[HuggingFace] {model_id}",
+                "updated": datetime.datetime.now().strftime("%Y-%m-%d"),
+                "source": "HuggingFace Hub",
+                "summary": f"HuggingFace上の人気オープンソース動画生成モデル。総ダウンロード数: {downloads:,}回。",
+                "url": link,
+                "cost_badge": "Free / Open-Source",
+                "is_free_os": True,
+                "detected_free_models": cost_info["free_models"],
+                "detected_paid_models": [],
+                "tags": ["HuggingFace", "Open Weights"] + cost_info["free_models"],
+                "details": {
+                    "recommended_nodes": ["CheckpointLoaderSimple", "UNETLoader"],
+                    "key_tips": [
+                        f"モデルリポジトリ: {model_id}",
+                        "モデルファイルをComfyUI / Floyoのmodels/checkpointsまたはmodels/diffusion_modelsに配置して使用"
+                    ]
+                },
+                "workflow_json": TEMPLATE_LTX_23_CANVAS if "ltx" in model_id.lower() else TEMPLATE_WAN_21_CANVAS
+            })
+    except Exception as e:
+        print(f"Failed to crawl HuggingFace API: {e}", flush=True)
+
+    print(f"Extracted {len(hf_entries)} HuggingFace model entries.", flush=True)
+    return hf_entries
 
 # ---------------------------------------------------------
 # GitHub Releases Atom Feed Crawler
@@ -222,12 +283,12 @@ def fetch_github_release_updates():
     for repo_path, repo_name in repos:
         feed_url = f"https://github.com/{repo_path}/releases.atom"
         try:
-            time.sleep(0.5) # Gentle rate limiting
+            time.sleep(0.3)
             xml_data = http_get_raw(feed_url)
             root = ET.fromstring(xml_data)
             entries = root.findall('{http://www.w3.org/2005/Atom}entry')
             
-            for entry in entries[:4]: # Get up to 4 releases per repo
+            for entry in entries[:3]:
                 title_elem = entry.find('{http://www.w3.org/2005/Atom}title')
                 link_elem = entry.find('{http://www.w3.org/2005/Atom}link')
                 updated_elem = entry.find('{http://www.w3.org/2005/Atom}updated')
@@ -273,20 +334,18 @@ def fetch_github_release_updates():
     return github_entries
 
 # ---------------------------------------------------------
-# Reddit RSS & JSON API Crawler (With Rate-Limit Handling)
+# Reddit RSS Feed Crawler (Fixed for Cloud 403/429)
 # ---------------------------------------------------------
 
 def fetch_reddit_live_knowhow():
-    print("Crawling live Reddit endpoints for Floyo & ComfyUI Video Workflows...", flush=True)
+    print("Crawling live Reddit RSS feeds for Floyo & ComfyUI Video Workflows...", flush=True)
     reddit_entries = []
     
-    # Using JSON endpoints with rate limit pause
-    subreddits = [
-        ("comfyui", "hot"),
-        ("comfyui", "new"),
-        ("Floyo", "hot"),
-        ("StableDiffusion", "hot"),
-        ("AIAnime", "hot")
+    rss_urls = [
+        ("https://www.reddit.com/r/comfyui/hot.rss", "/r/comfyui"),
+        ("https://www.reddit.com/r/comfyui/new.rss", "/r/comfyui"),
+        ("https://www.reddit.com/r/Floyo/hot.rss", "/r/Floyo"),
+        ("https://www.reddit.com/r/StableDiffusion/hot.rss", "/r/StableDiffusion")
     ]
     
     seen_links = set()
@@ -295,33 +354,38 @@ def fetch_reddit_live_knowhow():
         "floyo", "workflow", "canvas", "consistency", "lipsync", "animation", "motion", "nodes"
     ]
     
-    for sub, sort in subreddits:
-        json_url = f"https://www.reddit.com/r/{sub}/{sort}.json?limit=25"
+    for url, sub_name in rss_urls:
         try:
-            time.sleep(1.5) # Sleep 1.5s to completely avoid HTTP 429 Too Many Requests
-            raw_data = http_get_raw(json_url)
-            data = json.loads(raw_data.decode('utf-8'))
-            posts = data.get('data', {}).get('children', [])
+            time.sleep(1.0)
+            xml_data = http_get_raw(url)
+            root = ET.fromstring(xml_data)
+            entries = root.findall('{http://www.w3.org/2005/Atom}entry')
             
-            for post in posts:
-                pdata = post.get('data', {})
-                title = pdata.get('title', '')
-                permalink = pdata.get('permalink', '')
-                link = f"https://www.reddit.com{permalink}" if permalink else pdata.get('url', '')
-                created_utc = pdata.get('created_utc', 0)
-                selftext = pdata.get('selftext', '')
+            for entry in entries:
+                title_elem = entry.find('{http://www.w3.org/2005/Atom}title')
+                link_elem = entry.find('{http://www.w3.org/2005/Atom}link')
+                updated_elem = entry.find('{http://www.w3.org/2005/Atom}updated')
+                content_elem = entry.find('{http://www.w3.org/2005/Atom}content')
+                
+                title = title_elem.text if title_elem is not None else ""
+                link = link_elem.attrib.get('href', '') if link_elem is not None else ""
+                updated = updated_elem.text if updated_elem is not None else datetime.datetime.now().strftime("%Y-%m-%d")
+                content_raw = content_elem.text if content_elem is not None else ""
                 
                 if not link or link in seen_links:
                     continue
                     
-                full_text = (title + " " + selftext).lower()
+                clean_content = re.sub(r'<[^>]+>', ' ', content_raw).strip()
+                clean_content = re.sub(r'\s+', ' ', clean_content)
+                
+                full_text = (title + " " + clean_content).lower()
                 is_relevant = any(kw in full_text for kw in keywords)
                 
                 if is_relevant:
                     seen_links.add(link)
-                    date_str = datetime.datetime.fromtimestamp(created_utc).strftime("%Y-%m-%d") if created_utc else datetime.datetime.now().strftime("%Y-%m-%d")
+                    date_str = updated.split('T')[0] if 'T' in updated else updated[:10]
                     
-                    cost_info = classify_cost_and_models(title + " " + selftext)
+                    cost_info = classify_cost_and_models(title + " " + clean_content)
                     
                     category = "Reddit: リアルタイム話題"
                     if "floyo" in full_text or "canvas" in full_text:
@@ -333,29 +397,29 @@ def fetch_reddit_live_knowhow():
                     elif "i2v" in full_text or "t2v" in full_text or "video" in full_text:
                         category = "ComfyUI 動画生成ノード・テクニック"
                         
-                    clean_summary = selftext[:200].strip() if selftext else f"Reddit /r/{sub} コミュニティでの動画制作議論。ワークフローや最新ノードに関する投稿です。"
-                    if len(selftext) > 200:
-                        clean_summary += "..."
+                    summary = clean_content[:200] + "..." if len(clean_content) > 200 else clean_content
+                    if not summary or ("submitted by" in summary and len(summary) < 60):
+                        summary = f"Reddit {sub_name} コミュニティでの動画制作議論。ワークフローや最新ノードに関する投稿です。"
 
                     workflow_template = TEMPLATE_LTX_23_CANVAS if "ltx" in full_text else (TEMPLATE_WAN_21_CANVAS if "wan" in full_text else TEMPLATE_LTX_23_CANVAS)
 
                     reddit_entries.append({
                         "id": f"reddit-{len(reddit_entries)+1}",
                         "category": category,
-                        "title": f"[/r/{sub}] {title}",
+                        "title": f"[{sub_name}] {title}",
                         "updated": date_str,
-                        "source": f"Reddit /r/{sub}",
-                        "summary": clean_summary,
+                        "source": f"Reddit {sub_name}",
+                        "summary": summary,
                         "url": link,
                         "cost_badge": cost_info["cost_badge"],
                         "is_free_os": cost_info["is_free_os"],
                         "detected_free_models": cost_info["free_models"],
                         "detected_paid_models": cost_info["paid_models"],
-                        "tags": ["Reddit", sub, cost_info["cost_badge"]] + cost_info["free_models"] + cost_info["paid_models"],
+                        "tags": ["Reddit", sub_name.replace("/r/", ""), cost_info["cost_badge"]] + cost_info["free_models"] + cost_info["paid_models"],
                         "workflow_json": workflow_template
                     })
         except Exception as e:
-            print(f"Failed to crawl Reddit /r/{sub}: {e}", flush=True)
+            print(f"Failed to crawl Reddit RSS {url}: {e}", flush=True)
 
     print(f"Extracted {len(reddit_entries)} live Reddit video workflow entries.", flush=True)
     return reddit_entries
@@ -432,7 +496,7 @@ def get_curated_base_knowhow():
                     "フリーの軽量アニメモデル (NetaYume, Anima) をベースモデルとして統一"
                 ]
             },
-            "workflow_json": TEMPLATE_CHARACTER_CONSISTENCY_CANVAS
+            "workflow_json": TEMPLATE_WAN_21_CANVAS
         },
         {
             "id": "base-4",
@@ -463,13 +527,17 @@ def get_curated_base_knowhow():
 def generate_database():
     print("Generating Robust Multi-Source Floyo & ComfyUI Video Knowledge Database...", flush=True)
     curated = get_curated_base_knowhow()
+    civitai_items = fetch_civitai_video_models()
+    hf_items = fetch_huggingface_video_models()
     github_updates = fetch_github_release_updates()
     live_reddit = fetch_reddit_live_knowhow()
     
     total_data = {
         "updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "total_count": len(curated) + len(github_updates) + len(live_reddit),
+        "total_count": len(curated) + len(civitai_items) + len(hf_items) + len(github_updates) + len(live_reddit),
         "curated_knowhow": curated,
+        "civitai_items": civitai_items,
+        "hf_items": hf_items,
         "github_updates": github_updates,
         "reddit_live_topics": live_reddit
     }

@@ -11,7 +11,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Floyo & ComfyUI Video Workflows | 無料・OSモデル動画制作ポータル</title>
-    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・GitHub更新・JSONワークフローダウンロードと最新知見のポータルサイト">
+    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・Civitai/HuggingFace/GitHub/Reddit統合・JSONワークフローダウンロードポータル">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -498,10 +498,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     <div class="hero">
         <h1>Floyo / ComfyUI 動画制作ワークフロー</h1>
-        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心とした動画ワークフロー、GitHubリリース更新、Floyo Canvas JSONダウンロード機能付きポータル</p>
+        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心としたマルチソース統合（Civitai, HuggingFace, GitHub, Reddit）ポータル</p>
         <div class="stats-bar">
             <div class="stat-item">データベース更新: <span class="stat-value" id="last-updated">2026-07-28</span></div>
-            <div class="stat-item">収録アイテム数: <span class="stat-value" id="total-items">0</span></div>
+            <div class="stat-item">総収録アイテム数: <span class="stat-value" id="total-items">0</span></div>
             <div class="stat-item">標準モデル姿勢: <span class="stat-value" style="color: var(--badge-free-text);">Free / Open-Source 優先</span></div>
         </div>
     </div>
@@ -510,16 +510,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div class="controls">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" placeholder="モデル名 (LTX 2.3, Wan 2.1, AnimateDiff)、キーワード、ワークフロー名で検索...">
+                <input type="text" id="search-input" placeholder="モデル名 (LTX 2.3, Wan 2.1, AnimateDiff)、キーワード、ソースで検索...">
             </div>
 
             <div class="filter-tabs" id="filter-tabs">
                 <button class="tab-btn active" data-filter="all">すべて表示</button>
                 <button class="tab-btn" data-filter="free">無料/オープンソースモデル</button>
-                <button class="tab-btn" data-filter="floyo">Floyo ワークフロー</button>
+                <button class="tab-btn" data-filter="civitai">Civitai モジュール</button>
+                <button class="tab-btn" data-filter="hf">HuggingFace モデル</button>
                 <button class="tab-btn" data-filter="github">GitHub ノード更新</button>
-                <button class="tab-btn" data-filter="consistency">キャラクター一貫性</button>
-                <button class="tab-btn" data-filter="reddit">Reddit リアルタイム話題</button>
+                <button class="tab-btn" data-filter="reddit">Reddit リアルタイム</button>
                 <button class="tab-btn" data-filter="paid">Partner/有料注意</button>
             </div>
         </div>
@@ -554,7 +554,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <footer>
-        <p>Built with Python & Pure Web Tech | Multi-Source Integration (Reddit RSS, GitHub Releases, Curated Guides)</p>
+        <p>Built with Python & Pure Web Tech | Multi-Source Integration (Civitai API, HuggingFace Hub, GitHub Releases, Reddit RSS)</p>
         <p style="margin-top: 0.5rem; font-size: 0.8rem;">※ Downloaded .json files can be directly dragged & dropped into Floyo UI Canvas.</p>
     </footer>
 
@@ -587,9 +587,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             if (DB_DATA) {
                 lastUpdatedElem.textContent = DB_DATA.updated_at || '2026-07-28';
                 const curated = DB_DATA.curated_knowhow || [];
+                const civitai = DB_DATA.civitai_items || [];
+                const hf = DB_DATA.hf_items || [];
                 const github = DB_DATA.github_updates || [];
                 const reddit = DB_DATA.reddit_live_topics || [];
-                allItems = [...curated, ...github, ...reddit];
+                allItems = [...curated, ...civitai, ...hf, ...github, ...reddit];
                 totalItemsElem.textContent = allItems.length;
             }
 
@@ -603,9 +605,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     let passFilter = true;
                     if (currentFilter === 'free') passFilter = item.is_free_os === true;
                     else if (currentFilter === 'paid') passFilter = item.is_free_os === false;
-                    else if (currentFilter === 'floyo') passFilter = item.category.includes('Floyo') || (item.tags && item.tags.includes('Floyo'));
+                    else if (currentFilter === 'civitai') passFilter = item.id.startsWith('civitai');
+                    else if (currentFilter === 'hf') passFilter = item.id.startsWith('hf');
                     else if (currentFilter === 'github') passFilter = item.id.startsWith('github');
-                    else if (currentFilter === 'consistency') passFilter = item.category.includes('一貫性') || (item.tags && item.tags.includes('Character Consistency'));
                     else if (currentFilter === 'reddit') passFilter = item.id.startsWith('reddit');
 
                     let passSearch = true;
@@ -773,7 +775,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 """
 
 def build_site():
-    print("Building static index.html from multi-source database...", flush=True)
+    print("Building static index.html from robust multi-source database...", flush=True)
     if not os.path.exists(DATABASE_FILE):
         print(f"Error: {DATABASE_FILE} not found. Run extract_floyo_comfy_knowhow.py first.")
         return
