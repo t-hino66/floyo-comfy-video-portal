@@ -11,7 +11,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Floyo & ComfyUI Video Workflows | 無料・OSモデル動画制作ポータル</title>
-    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・JSONワークフローダウンロードと最新知見のポータルサイト">
+    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・GitHub更新・JSONワークフローダウンロードと最新知見のポータルサイト">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -498,7 +498,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     <div class="hero">
         <h1>Floyo / ComfyUI 動画制作ワークフロー</h1>
-        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心とした動画ワークフロー・Floyo Canvas JSON の生成・ワンクリックダウンロード機能付きポータル</p>
+        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心とした動画ワークフロー、GitHubリリース更新、Floyo Canvas JSONダウンロード機能付きポータル</p>
         <div class="stats-bar">
             <div class="stat-item">データベース更新: <span class="stat-value" id="last-updated">2026-07-28</span></div>
             <div class="stat-item">収録アイテム数: <span class="stat-value" id="total-items">0</span></div>
@@ -517,6 +517,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 <button class="tab-btn active" data-filter="all">すべて表示</button>
                 <button class="tab-btn" data-filter="free">無料/オープンソースモデル</button>
                 <button class="tab-btn" data-filter="floyo">Floyo ワークフロー</button>
+                <button class="tab-btn" data-filter="github">GitHub ノード更新</button>
                 <button class="tab-btn" data-filter="consistency">キャラクター一貫性</button>
                 <button class="tab-btn" data-filter="reddit">Reddit リアルタイム話題</button>
                 <button class="tab-btn" data-filter="paid">Partner/有料注意</button>
@@ -553,12 +554,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <footer>
-        <p>Built with Python & Pure Web Tech | Optimized for Floyo UI & ComfyUI Workflows</p>
+        <p>Built with Python & Pure Web Tech | Multi-Source Integration (Reddit RSS, GitHub Releases, Curated Guides)</p>
         <p style="margin-top: 0.5rem; font-size: 0.8rem;">※ Downloaded .json files can be directly dragged & dropped into Floyo UI Canvas.</p>
     </footer>
 
     <script>
-        // Database injected directly from python build step
+        // Multi-Source Database injected directly from python build step
         const DB_DATA = __DATABASE_JSON_PLACEHOLDER__;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -586,8 +587,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             if (DB_DATA) {
                 lastUpdatedElem.textContent = DB_DATA.updated_at || '2026-07-28';
                 const curated = DB_DATA.curated_knowhow || [];
+                const github = DB_DATA.github_updates || [];
                 const reddit = DB_DATA.reddit_live_topics || [];
-                allItems = [...curated, ...reddit];
+                allItems = [...curated, ...github, ...reddit];
                 totalItemsElem.textContent = allItems.length;
             }
 
@@ -602,6 +604,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     if (currentFilter === 'free') passFilter = item.is_free_os === true;
                     else if (currentFilter === 'paid') passFilter = item.is_free_os === false;
                     else if (currentFilter === 'floyo') passFilter = item.category.includes('Floyo') || (item.tags && item.tags.includes('Floyo'));
+                    else if (currentFilter === 'github') passFilter = item.id.startsWith('github');
                     else if (currentFilter === 'consistency') passFilter = item.category.includes('一貫性') || (item.tags && item.tags.includes('Character Consistency'));
                     else if (currentFilter === 'reddit') passFilter = item.id.startsWith('reddit');
 
@@ -770,7 +773,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 """
 
 def build_site():
-    print("Building static index.html from database with Canvas JSON Workflow features...", flush=True)
+    print("Building static index.html from multi-source database...", flush=True)
     if not os.path.exists(DATABASE_FILE):
         print(f"Error: {DATABASE_FILE} not found. Run extract_floyo_comfy_knowhow.py first.")
         return

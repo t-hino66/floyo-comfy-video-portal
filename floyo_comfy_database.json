@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-28 13:44:49",
+  "updated_at": "2026-07-28 13:47:56",
   "total_count": 4,
   "curated_knowhow": [
     {
@@ -52,9 +52,6 @@
               315,
               314
             ],
-            "flags": {},
-            "order": 0,
-            "mode": 0,
             "outputs": [
               {
                 "name": "IMAGE",
@@ -64,9 +61,6 @@
                 ]
               }
             ],
-            "properties": {
-              "Node name for S&R": "LoadImage"
-            },
             "widgets_values": [
               "input_character_scene.png",
               "image"
@@ -83,9 +77,6 @@
               400,
               200
             ],
-            "flags": {},
-            "order": 1,
-            "mode": 0,
             "outputs": [
               {
                 "name": "CONDITIONING",
@@ -95,9 +86,6 @@
                 ]
               }
             ],
-            "properties": {
-              "Node name for S&R": "CLIPTextEncode"
-            },
             "widgets_values": [
               "masterpiece, highly detailed, 1girl, floating hair, wind blowing, smooth motion, high quality video, cinematic lighting"
             ]
@@ -113,9 +101,6 @@
               350,
               300
             ],
-            "flags": {},
-            "order": 2,
-            "mode": 0,
             "inputs": [
               {
                 "name": "image",
@@ -137,9 +122,6 @@
                 ]
               }
             ],
-            "properties": {
-              "Node name for S&R": "LTXVideoSampler"
-            },
             "widgets_values": [
               42,
               "randomize",
@@ -161,9 +143,6 @@
               210,
               100
             ],
-            "flags": {},
-            "order": 3,
-            "mode": 0,
             "inputs": [
               {
                 "name": "samples",
@@ -179,10 +158,7 @@
                   4
                 ]
               }
-            ],
-            "properties": {
-              "Node name for S&R": "VAEDecode"
-            }
+            ]
           },
           {
             "id": 5,
@@ -195,9 +171,6 @@
               300,
               250
             ],
-            "flags": {},
-            "order": 4,
-            "mode": 0,
             "inputs": [
               {
                 "name": "images",
@@ -205,9 +178,6 @@
                 "link": 4
               }
             ],
-            "properties": {
-              "Node name for S&R": "VHS_VideoCombine"
-            },
             "widgets_values": [
               24,
               0,
@@ -315,9 +285,6 @@
               420,
               220
             ],
-            "flags": {},
-            "order": 0,
-            "mode": 0,
             "outputs": [
               {
                 "name": "CONDITIONING",
@@ -342,9 +309,6 @@
               360,
               320
             ],
-            "flags": {},
-            "order": 1,
-            "mode": 0,
             "inputs": [
               {
                 "name": "positive",
@@ -382,9 +346,6 @@
               300,
               250
             ],
-            "flags": {},
-            "order": 2,
-            "mode": 0,
             "inputs": [
               {
                 "name": "images",
@@ -637,9 +598,6 @@
               315,
               314
             ],
-            "flags": {},
-            "order": 0,
-            "mode": 0,
             "outputs": [
               {
                 "name": "IMAGE",
@@ -649,9 +607,6 @@
                 ]
               }
             ],
-            "properties": {
-              "Node name for S&R": "LoadImage"
-            },
             "widgets_values": [
               "input_character_scene.png",
               "image"
@@ -668,9 +623,6 @@
               400,
               200
             ],
-            "flags": {},
-            "order": 1,
-            "mode": 0,
             "outputs": [
               {
                 "name": "CONDITIONING",
@@ -680,9 +632,6 @@
                 ]
               }
             ],
-            "properties": {
-              "Node name for S&R": "CLIPTextEncode"
-            },
             "widgets_values": [
               "masterpiece, highly detailed, 1girl, floating hair, wind blowing, smooth motion, high quality video, cinematic lighting"
             ]
@@ -698,9 +647,6 @@
               350,
               300
             ],
-            "flags": {},
-            "order": 2,
-            "mode": 0,
             "inputs": [
               {
                 "name": "image",
@@ -722,9 +668,6 @@
                 ]
               }
             ],
-            "properties": {
-              "Node name for S&R": "LTXVideoSampler"
-            },
             "widgets_values": [
               42,
               "randomize",
@@ -746,9 +689,6 @@
               210,
               100
             ],
-            "flags": {},
-            "order": 3,
-            "mode": 0,
             "inputs": [
               {
                 "name": "samples",
@@ -764,10 +704,7 @@
                   4
                 ]
               }
-            ],
-            "properties": {
-              "Node name for S&R": "VAEDecode"
-            }
+            ]
           },
           {
             "id": 5,
@@ -780,9 +717,6 @@
               300,
               250
             ],
-            "flags": {},
-            "order": 4,
-            "mode": 0,
             "inputs": [
               {
                 "name": "images",
@@ -790,9 +724,6 @@
                 "link": 4
               }
             ],
-            "properties": {
-              "Node name for S&R": "VHS_VideoCombine"
-            },
             "widgets_values": [
               24,
               0,
@@ -852,5 +783,6 @@
       }
     }
   ],
+  "github_updates": [],
   "reddit_live_topics": []
 }

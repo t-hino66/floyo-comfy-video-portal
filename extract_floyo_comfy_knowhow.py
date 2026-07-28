@@ -17,7 +17,7 @@ PAID_PARTNER_MODELS = [
     "Kling", "Seedance", "Moonvalley", "Pixverse", "Ideogram", "Nano Banana", "GPT Image 2"
 ]
 
-def http_get_rss(url):
+def http_get_raw(url):
     req = urllib.request.Request(
         url,
         headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
@@ -48,7 +48,7 @@ def classify_cost_and_models(text):
     }
 
 # ---------------------------------------------------------
-# Verified Sample JSON Templates (Floyo Canvas & ComfyUI API)
+# Verified Sample JSON Templates (Floyo Canvas)
 # ---------------------------------------------------------
 
 TEMPLATE_LTX_23_CANVAS = {
@@ -59,11 +59,7 @@ TEMPLATE_LTX_23_CANVAS = {
             "type": "LoadImage",
             "pos": [100, 150],
             "size": [315, 314],
-            "flags": {},
-            "order": 0,
-            "mode": 0,
             "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [1]}],
-            "properties": {"Node name for S&R": "LoadImage"},
             "widgets_values": ["input_character_scene.png", "image"]
         },
         {
@@ -71,11 +67,7 @@ TEMPLATE_LTX_23_CANVAS = {
             "type": "CLIPTextEncode",
             "pos": [450, 150],
             "size": [400, 200],
-            "flags": {},
-            "order": 1,
-            "mode": 0,
             "outputs": [{"name": "CONDITIONING", "type": "CONDITIONING", "links": [2]}],
-            "properties": {"Node name for S&R": "CLIPTextEncode"},
             "widgets_values": ["masterpiece, highly detailed, 1girl, floating hair, wind blowing, smooth motion, high quality video, cinematic lighting"]
         },
         {
@@ -83,15 +75,11 @@ TEMPLATE_LTX_23_CANVAS = {
             "type": "LTXVideoSampler",
             "pos": [900, 150],
             "size": [350, 300],
-            "flags": {},
-            "order": 2,
-            "mode": 0,
             "inputs": [
                 {"name": "image", "type": "IMAGE", "link": 1},
                 {"name": "positive", "type": "CONDITIONING", "link": 2}
             ],
             "outputs": [{"name": "LATENT", "type": "LATENT", "links": [3]}],
-            "properties": {"Node name for S&R": "LTXVideoSampler"},
             "widgets_values": [42, "randomize", 25, 3.0, "ltx-video-2.3.safetensors", 97, 24]
         },
         {
@@ -99,23 +87,15 @@ TEMPLATE_LTX_23_CANVAS = {
             "type": "VAEDecode",
             "pos": [1300, 150],
             "size": [210, 100],
-            "flags": {},
-            "order": 3,
-            "mode": 0,
             "inputs": [{"name": "samples", "type": "LATENT", "link": 3}],
             "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [4]}],
-            "properties": {"Node name for S&R": "VAEDecode"}
         },
         {
             "id": 5,
             "type": "VHS_VideoCombine",
             "pos": [1550, 150],
             "size": [300, 250],
-            "flags": {},
-            "order": 4,
-            "mode": 0,
             "inputs": [{"name": "images", "type": "IMAGE", "link": 4}],
-            "properties": {"Node name for S&R": "VHS_VideoCombine"},
             "widgets_values": [24, 0, "ltx_video_output", "video/h264-mp4", False, True]
         }
     ],
@@ -142,9 +122,6 @@ TEMPLATE_WAN_21_CANVAS = {
             "type": "WanVideoTextEncode",
             "pos": [100, 100],
             "size": [420, 220],
-            "flags": {},
-            "order": 0,
-            "mode": 0,
             "outputs": [{"name": "CONDITIONING", "type": "CONDITIONING", "links": [10]}],
             "widgets_values": ["anime scene, camera pans left slowly, detailed background, cherry blossoms falling, high dynamic range"]
         },
@@ -153,9 +130,6 @@ TEMPLATE_WAN_21_CANVAS = {
             "type": "WanVideoSampler",
             "pos": [560, 100],
             "size": [360, 320],
-            "flags": {},
-            "order": 1,
-            "mode": 0,
             "inputs": [{"name": "positive", "type": "CONDITIONING", "link": 10}],
             "outputs": [{"name": "LATENT", "type": "LATENT", "links": [11]}],
             "widgets_values": [123456789, "fixed", 30, 6.0, "wan_2.1_14b.safetensors", 81, 16]
@@ -165,9 +139,6 @@ TEMPLATE_WAN_21_CANVAS = {
             "type": "VHS_VideoCombine",
             "pos": [960, 100],
             "size": [300, 250],
-            "flags": {},
-            "order": 2,
-            "mode": 0,
             "inputs": [{"name": "images", "type": "IMAGE", "link": 11}],
             "widgets_values": [16, 0, "wan_video_result", "video/h264-mp4", False, True]
         }
@@ -227,6 +198,76 @@ TEMPLATE_CHARACTER_CONSISTENCY_CANVAS = {
     ]
 }
 
+# ---------------------------------------------------------
+# New Crawlers: GitHub Releases RSS (Major Video Nodes)
+# ---------------------------------------------------------
+
+def fetch_github_release_updates():
+    """
+    Crawls official GitHub Release Atom feeds for major ComfyUI & Video nodes.
+    """
+    print("Crawling GitHub Releases for ComfyUI Video Node updates...", flush=True)
+    github_entries = []
+    
+    repos = [
+        ("Kosinkadink/ComfyUI-VideoHelperSuite", "VideoHelperSuite (Video Output/Combine)"),
+        ("Kosinkadink/ComfyUI-AnimateDiff-Evolved", "AnimateDiff Evolved (Motion Animation)"),
+        ("Lightricks/LTX-Video", "LTX-Video Official Model Release"),
+        ("Wan-Video/Wan2.1", "Wan 2.1 Official Video Model")
+    ]
+    
+    for repo_path, repo_name in repos:
+        feed_url = f"https://github.com/{repo_path}/releases.atom"
+        try:
+            xml_data = http_get_raw(feed_url)
+            root = ET.fromstring(xml_data)
+            entries = root.findall('{http://www.w3.org/2005/Atom}entry')
+            
+            for entry in entries[:2]: # Get latest 2 releases per repo
+                title_elem = entry.find('{http://www.w3.org/2005/Atom}title')
+                link_elem = entry.find('{http://www.w3.org/2005/Atom}link')
+                updated_elem = entry.find('{http://www.w3.org/2005/Atom}updated')
+                content_elem = entry.find('{http://www.w3.org/2005/Atom}content')
+                
+                title = title_elem.text if title_elem is not None else ""
+                link = link_elem.attrib.get('href', '') if link_elem is not None else ""
+                updated = updated_elem.text if updated_elem is not None else datetime.datetime.now().strftime("%Y-%m-%d")
+                content_raw = content_elem.text if content_elem is not None else ""
+                
+                clean_content = re.sub(r'<[^>]+>', ' ', content_raw).strip()
+                clean_content = re.sub(r'\s+', ' ', clean_content)
+                date_str = updated.split('T')[0] if 'T' in updated else updated[:10]
+                
+                cost_info = classify_cost_and_models(title + " " + repo_name)
+                
+                github_entries.append({
+                    "id": f"github-{len(github_entries)+1}",
+                    "category": "GitHub リリース・ノード更新",
+                    "title": f"[{repo_name}] {title}",
+                    "updated": date_str,
+                    "source": f"GitHub Release ({repo_path})",
+                    "summary": clean_content[:220] + "..." if len(clean_content) > 220 else clean_content,
+                    "url": link,
+                    "cost_badge": cost_info["cost_badge"],
+                    "is_free_os": True,
+                    "detected_free_models": cost_info["free_models"],
+                    "detected_paid_models": [],
+                    "tags": ["GitHub", "Node Update", "Release"] + cost_info["free_models"],
+                    "details": {
+                        "recommended_nodes": [f"Install/Update via ComfyUI Manager: {repo_path}"],
+                        "key_tips": [
+                            f"最新リリースバージョン: {title}",
+                            f"詳細な変更履歴は GitHub リポジトリをご確認ください。"
+                        ]
+                    },
+                    "workflow_json": TEMPLATE_LTX_23_CANVAS if "LTX" in repo_name else TEMPLATE_WAN_21_CANVAS
+                })
+        except Exception as e:
+            print(f"Failed to crawl GitHub release {repo_path}: {e}", flush=True)
+            
+    print(f"Extracted {len(github_entries)} GitHub release entries.", flush=True)
+    return github_entries
+
 def fetch_reddit_live_knowhow():
     print("Crawling live Reddit RSS feeds for Floyo & ComfyUI Video Workflows...", flush=True)
     reddit_entries = []
@@ -247,7 +288,7 @@ def fetch_reddit_live_knowhow():
     
     for url in rss_urls:
         try:
-            xml_data = http_get_rss(url)
+            xml_data = http_get_raw(url)
             root = ET.fromstring(xml_data)
             entries = root.findall('{http://www.w3.org/2005/Atom}entry')
             
@@ -299,7 +340,6 @@ def fetch_reddit_live_knowhow():
                     elif "/r/AIAnime" in url:
                         sub_name = "/r/AIAnime"
 
-                    # Assign a general Floyo Canvas template dynamically
                     workflow_template = TEMPLATE_LTX_23_CANVAS if "ltx" in full_text else (TEMPLATE_WAN_21_CANVAS if "wan" in full_text else TEMPLATE_LTX_23_CANVAS)
 
                     reddit_entries.append({
@@ -424,21 +464,23 @@ def get_curated_base_knowhow():
     ]
 
 def generate_database():
-    print("Generating Floyo & ComfyUI Video Knowledge Database with JSON Workflows...", flush=True)
+    print("Generating Multi-Source Floyo & ComfyUI Video Knowledge Database...", flush=True)
     curated = get_curated_base_knowhow()
+    github_updates = fetch_github_release_updates()
     live_reddit = fetch_reddit_live_knowhow()
     
     total_data = {
         "updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "total_count": len(curated) + len(live_reddit),
+        "total_count": len(curated) + len(github_updates) + len(live_reddit),
         "curated_knowhow": curated,
+        "github_updates": github_updates,
         "reddit_live_topics": live_reddit
     }
     
     with open(DATABASE_FILE, 'w', encoding='utf-8') as f:
         json.dump(total_data, f, ensure_ascii=False, indent=2)
         
-    print(f"Successfully saved {total_data['total_count']} items with JSON Workflows to {DATABASE_FILE}.", flush=True)
+    print(f"Successfully saved {total_data['total_count']} items from multiple sources to {DATABASE_FILE}.", flush=True)
 
 if __name__ == "__main__":
     generate_database()
