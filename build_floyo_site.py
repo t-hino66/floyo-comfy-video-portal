@@ -314,7 +314,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             display: flex;
             flex-wrap: wrap;
             gap: 0.4rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
         }
 
         .model-tag {
@@ -330,7 +330,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .card-action-bar {
             display: flex;
             gap: 0.5rem;
-            margin-top: 0.75rem;
+            margin-top: 0.5rem;
         }
 
         .btn-action {
@@ -354,14 +354,45 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
         }
 
-        .card-footer {
+        .card-meta-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 1rem;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            margin-top: 0.75rem;
+        }
+
+        .source-name {
+            font-weight: 600;
+            color: var(--accent-glow);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            max-width: 65%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .updated-date {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 0.75rem;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 0.75rem;
         }
 
         .btn-link {
@@ -510,7 +541,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div class="controls">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" placeholder="モデル名 (LTX 2.3, Wan 2.1, AnimateDiff)、キーワード、ソースで検索...">
+                <input type="text" id="search-input" placeholder="モデル名 (LTX 2.3, Wan 2.1, AnimateDiff)、ソース名、キーワードで検索...">
             </div>
 
             <div class="filter-tabs" id="filter-tabs">
@@ -536,6 +567,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <h2 class="card-title" id="modal-title" style="font-size: 1.5rem; margin-top: 0.5rem;">Title</h2>
             <div class="model-tags" id="modal-tags"></div>
             
+            <div class="card-meta-info" style="margin-bottom: 1rem;">
+                <span class="source-name" id="modal-source-name">📍 Source</span>
+                <span class="updated-date" id="modal-updated-date">📅 Updated Date</span>
+            </div>
+
             <p id="modal-summary" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
 
             <div id="modal-details-container"></div>
@@ -574,6 +610,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             const modalCategory = document.getElementById('modal-category');
             const modalTitle = document.getElementById('modal-title');
             const modalTags = document.getElementById('modal-tags');
+            const modalSourceName = document.getElementById('modal-source-name');
+            const modalUpdatedDate = document.getElementById('modal-updated-date');
             const modalSummary = document.getElementById('modal-summary');
             const modalDetailsContainer = document.getElementById('modal-details-container');
             const modalJsonPreview = document.getElementById('modal-json-preview');
@@ -613,7 +651,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     let passSearch = true;
                     if (searchQuery) {
                         const q = searchQuery.toLowerCase();
-                        const fullText = (item.title + ' ' + item.summary + ' ' + item.category + ' ' + (item.tags ? item.tags.join(' ') : '')).toLowerCase();
+                        const fullText = (item.title + ' ' + item.summary + ' ' + item.category + ' ' + (item.source || '') + ' ' + (item.tags ? item.tags.join(' ') : '')).toLowerCase();
                         passSearch = fullText.includes(q);
                     }
 
@@ -638,6 +676,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     const badgeText = item.cost_badge || (isFree ? 'Free / Open-Source' : 'Paid / Partner');
 
                     const tagsHtml = (item.tags || []).map(t => `<span class="model-tag">${t}</span>`).join('');
+                    const sourceText = item.source || 'Curated Guide';
+                    const dateText = item.updated || '2026-07-28';
 
                     card.innerHTML = `
                         <div>
@@ -648,13 +688,18 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                             <h3 class="card-title">${item.title}</h3>
                             <p class="card-summary">${item.summary}</p>
                             <div class="model-tags">${tagsHtml}</div>
+                            
+                            <div class="card-meta-info">
+                                <span class="source-name" title="${sourceText}">🌐 ${sourceText}</span>
+                                <span class="updated-date">📅 取得: ${dateText}</span>
+                            </div>
+
                             <div class="card-action-bar">
                                 <button class="btn-action download-quick-btn">💾 Canvas JSON</button>
                                 <button class="btn-action copy-quick-btn">📋 コピー</button>
                             </div>
                         </div>
-                        <div class="card-footer" style="margin-top: 1rem;">
-                            <span>${item.updated || ''}</span>
+                        <div class="card-footer">
                             <button class="btn-link view-details-btn" style="background:none; border:none; cursor:pointer;">詳細ノード構成 →</button>
                         </div>
                     `;
@@ -706,6 +751,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 modalCategory.textContent = item.category;
                 modalTitle.textContent = item.title;
                 modalSummary.textContent = item.summary;
+                modalSourceName.textContent = `🌐 ソース: ${item.source || 'Curated'}`;
+                modalUpdatedDate.textContent = `📅 取得・更新日: ${item.updated || ''}`;
                 modalUrlBtn.href = item.url || '#';
 
                 modalTags.innerHTML = (item.tags || []).map(t => `<span class="model-tag">${t}</span>`).join('');
@@ -775,7 +822,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 """
 
 def build_site():
-    print("Building static index.html from robust multi-source database...", flush=True)
+    print("Building static index.html from database with Source & Updated Date meta labels...", flush=True)
     if not os.path.exists(DATABASE_FILE):
         print(f"Error: {DATABASE_FILE} not found. Run extract_floyo_comfy_knowhow.py first.")
         return

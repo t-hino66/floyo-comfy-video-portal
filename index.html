@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Floyo & ComfyUI Video Workflows | 無料・OSモデル動画制作ポータル</title>
-    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・GitHub更新・JSONワークフローダウンロードと最新知見のポータルサイト">
+    <meta name="description" content="FloyoおよびComfyUIでの動画制作ワークフロー、オープンソースモデル(LTX 2.3, Wan2.1, AnimateDiff)のノード構成・Civitai/HuggingFace/GitHub/Reddit統合・JSONワークフローダウンロードポータル">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -307,7 +307,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.4rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
         }
 
         .model-tag {
@@ -323,7 +323,7 @@
         .card-action-bar {
             display: flex;
             gap: 0.5rem;
-            margin-top: 0.75rem;
+            margin-top: 0.5rem;
         }
 
         .btn-action {
@@ -347,14 +347,45 @@
             box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
         }
 
-        .card-footer {
+        .card-meta-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 1rem;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            margin-top: 0.75rem;
+        }
+
+        .source-name {
+            font-weight: 600;
+            color: var(--accent-glow);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            max-width: 65%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .updated-date {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 0.75rem;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 0.75rem;
         }
 
         .btn-link {
@@ -491,10 +522,10 @@
 
     <div class="hero">
         <h1>Floyo / ComfyUI 動画制作ワークフロー</h1>
-        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心とした動画ワークフロー、GitHubリリース更新、Floyo Canvas JSONダウンロード機能付きポータル</p>
+        <p>無料・オープンソース動画モデル（LTX 2.3, Wan 2.1/2.2, AnimateDiff）を中心としたマルチソース統合（Civitai, HuggingFace, GitHub, Reddit）ポータル</p>
         <div class="stats-bar">
             <div class="stat-item">データベース更新: <span class="stat-value" id="last-updated">2026-07-28</span></div>
-            <div class="stat-item">収録アイテム数: <span class="stat-value" id="total-items">0</span></div>
+            <div class="stat-item">総収録アイテム数: <span class="stat-value" id="total-items">0</span></div>
             <div class="stat-item">標準モデル姿勢: <span class="stat-value" style="color: var(--badge-free-text);">Free / Open-Source 優先</span></div>
         </div>
     </div>
@@ -503,16 +534,16 @@
         <div class="controls">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" placeholder="モデル名 (LTX 2.3, Wan 2.1, AnimateDiff)、キーワード、ワークフロー名で検索...">
+                <input type="text" id="search-input" placeholder="モデル名 (LTX 2.3, Wan 2.1, AnimateDiff)、ソース名、キーワードで検索...">
             </div>
 
             <div class="filter-tabs" id="filter-tabs">
                 <button class="tab-btn active" data-filter="all">すべて表示</button>
                 <button class="tab-btn" data-filter="free">無料/オープンソースモデル</button>
-                <button class="tab-btn" data-filter="floyo">Floyo ワークフロー</button>
+                <button class="tab-btn" data-filter="civitai">Civitai モジュール</button>
+                <button class="tab-btn" data-filter="hf">HuggingFace モデル</button>
                 <button class="tab-btn" data-filter="github">GitHub ノード更新</button>
-                <button class="tab-btn" data-filter="consistency">キャラクター一貫性</button>
-                <button class="tab-btn" data-filter="reddit">Reddit リアルタイム話題</button>
+                <button class="tab-btn" data-filter="reddit">Reddit リアルタイム</button>
                 <button class="tab-btn" data-filter="paid">Partner/有料注意</button>
             </div>
         </div>
@@ -529,6 +560,11 @@
             <h2 class="card-title" id="modal-title" style="font-size: 1.5rem; margin-top: 0.5rem;">Title</h2>
             <div class="model-tags" id="modal-tags"></div>
             
+            <div class="card-meta-info" style="margin-bottom: 1rem;">
+                <span class="source-name" id="modal-source-name">📍 Source</span>
+                <span class="updated-date" id="modal-updated-date">📅 Updated Date</span>
+            </div>
+
             <p id="modal-summary" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
 
             <div id="modal-details-container"></div>
@@ -547,7 +583,7 @@
     </div>
 
     <footer>
-        <p>Built with Python & Pure Web Tech | Multi-Source Integration (Reddit RSS, GitHub Releases, Curated Guides)</p>
+        <p>Built with Python & Pure Web Tech | Multi-Source Integration (Civitai API, HuggingFace Hub, GitHub Releases, Reddit RSS)</p>
         <p style="margin-top: 0.5rem; font-size: 0.8rem;">※ Downloaded .json files can be directly dragged & dropped into Floyo UI Canvas.</p>
     </footer>
 
@@ -1354,6 +1390,8 @@
             const modalCategory = document.getElementById('modal-category');
             const modalTitle = document.getElementById('modal-title');
             const modalTags = document.getElementById('modal-tags');
+            const modalSourceName = document.getElementById('modal-source-name');
+            const modalUpdatedDate = document.getElementById('modal-updated-date');
             const modalSummary = document.getElementById('modal-summary');
             const modalDetailsContainer = document.getElementById('modal-details-container');
             const modalJsonPreview = document.getElementById('modal-json-preview');
@@ -1367,9 +1405,11 @@
             if (DB_DATA) {
                 lastUpdatedElem.textContent = DB_DATA.updated_at || '2026-07-28';
                 const curated = DB_DATA.curated_knowhow || [];
+                const civitai = DB_DATA.civitai_items || [];
+                const hf = DB_DATA.hf_items || [];
                 const github = DB_DATA.github_updates || [];
                 const reddit = DB_DATA.reddit_live_topics || [];
-                allItems = [...curated, ...github, ...reddit];
+                allItems = [...curated, ...civitai, ...hf, ...github, ...reddit];
                 totalItemsElem.textContent = allItems.length;
             }
 
@@ -1383,15 +1423,15 @@
                     let passFilter = true;
                     if (currentFilter === 'free') passFilter = item.is_free_os === true;
                     else if (currentFilter === 'paid') passFilter = item.is_free_os === false;
-                    else if (currentFilter === 'floyo') passFilter = item.category.includes('Floyo') || (item.tags && item.tags.includes('Floyo'));
+                    else if (currentFilter === 'civitai') passFilter = item.id.startsWith('civitai');
+                    else if (currentFilter === 'hf') passFilter = item.id.startsWith('hf');
                     else if (currentFilter === 'github') passFilter = item.id.startsWith('github');
-                    else if (currentFilter === 'consistency') passFilter = item.category.includes('一貫性') || (item.tags && item.tags.includes('Character Consistency'));
                     else if (currentFilter === 'reddit') passFilter = item.id.startsWith('reddit');
 
                     let passSearch = true;
                     if (searchQuery) {
                         const q = searchQuery.toLowerCase();
-                        const fullText = (item.title + ' ' + item.summary + ' ' + item.category + ' ' + (item.tags ? item.tags.join(' ') : '')).toLowerCase();
+                        const fullText = (item.title + ' ' + item.summary + ' ' + item.category + ' ' + (item.source || '') + ' ' + (item.tags ? item.tags.join(' ') : '')).toLowerCase();
                         passSearch = fullText.includes(q);
                     }
 
@@ -1416,6 +1456,8 @@
                     const badgeText = item.cost_badge || (isFree ? 'Free / Open-Source' : 'Paid / Partner');
 
                     const tagsHtml = (item.tags || []).map(t => `<span class="model-tag">${t}</span>`).join('');
+                    const sourceText = item.source || 'Curated Guide';
+                    const dateText = item.updated || '2026-07-28';
 
                     card.innerHTML = `
                         <div>
@@ -1426,13 +1468,18 @@
                             <h3 class="card-title">${item.title}</h3>
                             <p class="card-summary">${item.summary}</p>
                             <div class="model-tags">${tagsHtml}</div>
+                            
+                            <div class="card-meta-info">
+                                <span class="source-name" title="${sourceText}">🌐 ${sourceText}</span>
+                                <span class="updated-date">📅 取得: ${dateText}</span>
+                            </div>
+
                             <div class="card-action-bar">
                                 <button class="btn-action download-quick-btn">💾 Canvas JSON</button>
                                 <button class="btn-action copy-quick-btn">📋 コピー</button>
                             </div>
                         </div>
-                        <div class="card-footer" style="margin-top: 1rem;">
-                            <span>${item.updated || ''}</span>
+                        <div class="card-footer">
                             <button class="btn-link view-details-btn" style="background:none; border:none; cursor:pointer;">詳細ノード構成 →</button>
                         </div>
                     `;
@@ -1484,6 +1531,8 @@
                 modalCategory.textContent = item.category;
                 modalTitle.textContent = item.title;
                 modalSummary.textContent = item.summary;
+                modalSourceName.textContent = `🌐 ソース: ${item.source || 'Curated'}`;
+                modalUpdatedDate.textContent = `📅 取得・更新日: ${item.updated || ''}`;
                 modalUrlBtn.href = item.url || '#';
 
                 modalTags.innerHTML = (item.tags || []).map(t => `<span class="model-tag">${t}</span>`).join('');
